@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>BillMate – Professional Event Expense Calculator</title>
     <meta name="theme-color" content="#2E2473">
     <link rel="manifest" href="manifest.json">
@@ -58,10 +59,12 @@
         html,
         body {
             height: 100%;
+            width: 100%;
             font-family: var(--font-body);
             background: var(--bg-deep);
             color: var(--text-primary);
-            overflow-x: hidden
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
         }
 
         ::-webkit-scrollbar {
@@ -315,26 +318,27 @@
         }
 
         .lang-pill {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1.5px solid var(--card-border);
-            border-radius: 10px;
-            padding: 5px 12px;
+            background: #FFFFFF;
+            border: 2px solid #1F2430;
+            border-radius: 12px;
+            padding: 6px 14px;
             font-family: var(--font-heading);
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--primary);
+            font-size: 14px;
+            font-weight: 800;
+            color: #1F2430;
             cursor: pointer;
             transition: var(--tr);
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 54px;
+            min-width: 60px;
             text-transform: uppercase;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
-        .lang-pill:hover {
-            border-color: var(--primary);
-            background: #fff;
+        .lang-pill:active {
+            transform: scale(0.95);
+            background: #F2F3F7;
         }
 
         /* Language Custom Modal / Sheet */
@@ -1238,7 +1242,9 @@
 
         .mgmt-col {
             padding: 24px;
-            overflow-y: auto
+            overflow-y: auto;
+            min-width: 0;
+            width: 100%;
         }
 
         .mgmt-col+.mgmt-col {
@@ -1266,7 +1272,8 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            width: 100%
+            width: 100%;
+            max-width: 100%
         }
 
         .add-form-row {
@@ -1274,6 +1281,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             width: 100%;
+            max-width: 100%;
             overflow: hidden
         }
 
@@ -1673,6 +1681,8 @@
 
             .add-form {
                 width: 100%;
+                max-width: 100%;
+                overflow: hidden;
             }
 
             .guest-grid {
@@ -2269,7 +2279,7 @@
                 </button>
                 <h2 id="serviceManagementTitle">Service Group</h2>
             </div>
-            <div class="mgmt-body" style="grid-template-columns:1fr">
+            <div class="mgmt-body">
                 <div class="mgmt-col">
                     <div class="mgmt-col-title" data-i18n="services.available">Service Items</div>
                     <div class="add-form">
@@ -2328,7 +2338,7 @@
         </div>
     </div>
 
-    <!-- LANGUAGE MODAL -->
+    <!-- CUSTOM LANGUAGE SELECTOR MODAL -->
     <div class="modal-overlay" id="langModal">
         <div class="lang-sheet">
             <div class="lang-option" data-lang="en">
@@ -2438,7 +2448,6 @@
         // REFS
         const welcomeScreen = document.getElementById('welcomeScreen'), mainApp = document.getElementById('mainApp'), mainScreen = document.getElementById('mainScreen');
         const workspaceScreen = document.getElementById('workspaceScreen'), menuManagementScreen = document.getElementById('menuManagementScreen'), serviceManagementScreen = document.getElementById('serviceManagementScreen');
-        const langSel = document.getElementById('languageSelector');
         const panels = { plans: document.getElementById('plansPanel'), menus: document.getElementById('menusPanel'), services: document.getElementById('servicesPanel'), ledgercore: document.getElementById('ledgercorePanel'), about: document.getElementById('aboutPanel') };
         const projectsGrid = document.getElementById('projectsGrid'), menuFoldersGrid = document.getElementById('menuFoldersGrid'), serviceFoldersGrid = document.getElementById('serviceFoldersGrid');
         const numGuestsEl = document.getElementById('numGuests'), costPerPersonEl = document.getElementById('costPerPerson'), chairsPerTableEl = document.getElementById('chairsPerTable');
