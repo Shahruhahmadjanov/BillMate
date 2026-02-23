@@ -1,0 +1,2797 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BillMate – Professional Event Expense Calculator</title>
+    <meta name="theme-color" content="#2E2473">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --primary: #2E2473;
+            --background: #F2F3F7;
+            --card: #FFFFFF;
+            --text-primary: #1F2430;
+            --text-secondary: #6B7280;
+            --placeholder: #9CA3AF;
+            --accent-orange: #F59E0B;
+            --inactive-icon: #8E93A6;
+
+            --bg-deep: var(--background);
+            --bg-dark: #E8EBF2;
+            --bg-mid: #DFE3EC;
+            --navy: var(--primary);
+            --accent-blue: var(--primary);
+            --accent-cyan: #4F46E5;
+            --accent-gold: var(--accent-orange);
+            --text-muted: var(--placeholder);
+            --card-bg: var(--card);
+            --card-border: rgba(46, 36, 115, 0.1);
+            --input-bg: var(--card);
+            --input-border: #D1D5DB;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --font-display: 'Inter', sans-serif;
+            --font-heading: 'Inter', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --tr: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Mobile Specific Variables */
+            --touch-target: 48px;
+            --side-padding: 16px;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-deep)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-blue);
+            border-radius: 4px
+        }
+
+        .mesh-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(ellipse 80% 50% at 95% 10%, rgba(46, 36, 115, .05) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 0% 90%, rgba(79, 70, 229, .03) 0%, transparent 55%), radial-gradient(ellipse 50% 40% at 50% 50%, rgba(46, 36, 115, .02) 0%, transparent 70%), var(--bg-deep)
+        }
+
+        /* WELCOME */
+        #welcomeScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: var(--bg-deep)
+        }
+
+        #welcomeScreen.active {
+            display: flex
+        }
+
+        .wl-logo {
+            font-family: var(--font-display);
+            font-size: clamp(60px, 10vw, 100px);
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: wp 2s ease infinite
+        }
+
+        .wl-sub {
+            font-family: var(--font-heading);
+            font-size: 13px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-top: 8px
+        }
+
+        .wl-loader {
+            width: 200px;
+            height: 2px;
+            background: rgba(255, 255, 255, .1);
+            border-radius: 2px;
+            margin-top: 40px;
+            overflow: hidden
+        }
+
+        .wl-loader-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            animation: lf 1.8s ease forwards
+        }
+
+        @keyframes wp {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .75
+            }
+        }
+
+        @keyframes lf {
+            0% {
+                width: 0%
+            }
+
+            100% {
+                width: 100%
+            }
+        }
+
+        /* HAMBURGER & SIDE MENU */
+        .btn-menu {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--primary);
+            transition: var(--tr);
+            z-index: 110;
+        }
+
+        .side-menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .side-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: var(--card-bg);
+            z-index: 1000;
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+        }
+
+        .side-menu.active {
+            left: 0;
+        }
+
+        .side-menu-header {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .side-menu-logo {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 800;
+            color: #000000;
+            letter-spacing: 1px;
+        }
+
+        .side-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 24px;
+            text-decoration: none;
+            color: #000000;
+            font-family: var(--font-heading);
+            font-size: 15px;
+            font-weight: 500;
+            transition: var(--tr);
+            border: none;
+            border-left: 4px solid transparent;
+            outline: none;
+            cursor: pointer;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+
+        .side-menu-item svg {
+            width: 20px;
+            height: 20px;
+            color: #2E2473;
+            transition: var(--tr);
+        }
+
+        .side-menu-item:hover {
+            background: rgba(46, 36, 115, 0.04);
+            color: #000000;
+        }
+
+        .side-menu-item.active {
+            background: rgba(46, 36, 115, 0.08);
+            color: #000000;
+            border-left-color: #2E2473;
+        }
+
+        .side-menu-item.active svg {
+            color: #2E2473;
+        }
+
+        /* MAIN APP */
+        #mainApp {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+            position: relative;
+            z-index: 1
+        }
+
+        #mainApp.active {
+            display: flex
+        }
+
+        .nav-links {
+            display: none
+        }
+
+        .app-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            height: 64px;
+            background: rgba(242, 243, 247, .9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(46, 36, 115, .12)
+        }
+
+        .nav-logo {
+            font-family: var(--font-display);
+            font-size: 26px;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            user-select: none;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .lang-select {
+            font-family: var(--font-heading);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            cursor: pointer;
+            transition: var(--tr);
+            appearance: none
+        }
+
+        .lang-select:hover {
+            border-color: var(--accent-cyan);
+            color: var(--text-primary)
+        }
+
+        .lang-select option {
+            background: var(--bg-mid);
+            color: var(--text-primary)
+        }
+
+        /* SCREEN WRAPPER */
+        #mainScreen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1
+        }
+
+        /* PANELS */
+        .panel {
+            display: none;
+            padding: var(--side-padding);
+            max-width: 100%;
+            margin: 0 auto;
+            width: 100%
+        }
+
+        .panel.active {
+            display: block;
+            animation: fi .3s ease
+        }
+
+        @keyframes fi {
+            from {
+                opacity: 0;
+                transform: translateY(8px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        /* HOME */
+        .hero-wrap {
+            min-height: calc(100vh - 64px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex-direction: column;
+            gap: 24px;
+            padding: 80px 20px
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-heading);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--primary);
+            background: rgba(46, 36, 115, .08);
+            border: 1px solid rgba(46, 36, 115, .15);
+            border-radius: 40px;
+            padding: 6px 16px
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(56px, 8vw, 110px);
+            line-height: .95;
+            letter-spacing: 2px;
+            background: linear-gradient(160deg, var(--primary) 30%, rgba(46, 36, 115, .5) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .hero-title .hl {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .hero-desc {
+            max-width: 600px;
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            font-family: var(--font-heading)
+        }
+
+        .btn-hero {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-heading);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
+            background: var(--primary);
+            border: none;
+            border-radius: 40px;
+            padding: 16px 40px;
+            cursor: pointer;
+            transition: var(--tr);
+            box-shadow: 0 4px 20px rgba(46, 36, 115, .2)
+        }
+
+        .btn-hero:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px rgba(255, 255, 255, .25)
+        }
+
+        /* SECTION */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px
+        }
+
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: 22px;
+            font-weight: 700
+        }
+
+        .btn-primary {
+            font-family: var(--font-heading);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #fff;
+            background: var(--accent-blue);
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: var(--tr);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .btn-primary:hover {
+            background: #1d174a;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(46, 36, 115, .3)
+        }
+
+        .btn-secondary {
+            font-family: var(--font-heading);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-sm);
+            padding: 9px 18px;
+            cursor: pointer;
+            transition: var(--tr);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .btn-secondary:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-blue)
+        }
+
+        .btn-gold {
+            font-family: var(--font-heading);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--bg-deep);
+            background: var(--accent-gold);
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 12px 22px;
+            cursor: pointer;
+            transition: var(--tr);
+            width: 100%
+        }
+
+        .btn-gold:hover {
+            background: #D97706;
+            transform: translateY(-1px)
+        }
+
+        .btn-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--tr);
+            color: var(--inactive-icon)
+        }
+
+        .btn-icon:hover {
+            background: rgba(46, 36, 115, .1);
+            border-color: var(--primary);
+            color: var(--primary)
+        }
+
+        .btn-icon.danger:hover {
+            background: rgba(220, 50, 50, .2);
+            border-color: #dc3232;
+            color: #ff5555
+        }
+
+        /* PROJECT CARDS */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            cursor: pointer;
+            transition: var(--tr);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            opacity: 0;
+            transition: var(--tr)
+        }
+
+        .project-card:hover {
+            border-color: rgba(46, 36, 115, .4);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(46, 36, 115, .1)
+        }
+
+        .project-card:hover::before {
+            opacity: 1
+        }
+
+        .project-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 10px
+        }
+
+        .project-card h3 {
+            font-family: var(--font-heading);
+            font-size: 16px;
+            font-weight: 700
+        }
+
+        .project-card-actions {
+            display: flex;
+            gap: 6px
+        }
+
+        .project-card-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: var(--font-heading)
+        }
+
+        /* FOLDER GRID */
+        .folders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 18px
+        }
+
+        .menu-folder-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            cursor: pointer;
+            transition: var(--tr);
+            position: relative;
+            overflow: hidden
+        }
+
+        .menu-folder-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            opacity: 0;
+            transition: var(--tr)
+        }
+
+        .menu-folder-card:hover {
+            border-color: rgba(46, 36, 115, .3);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 36px rgba(46, 36, 115, .08)
+        }
+
+        .menu-folder-card:hover::before {
+            opacity: 1
+        }
+
+        .menu-folder-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 10px
+        }
+
+        .menu-folder-icon {
+            color: var(--accent-blue)
+        }
+
+        .menu-folder-card h3 {
+            font-family: var(--font-heading);
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px
+        }
+
+        .menu-folder-total {
+            font-family: var(--font-heading);
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 6px
+        }
+
+        .menu-folder-meta {
+            font-size: 12px;
+            color: var(--inactive-icon)
+        }
+
+        /* WORKSPACE */
+        #workspaceScreen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            min-height: calc(100vh - 64px);
+            animation: fi .3s ease
+        }
+
+        #workspaceScreen.active {
+            display: flex
+        }
+
+        .ws-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px 32px;
+            border-bottom: 1px solid rgba(46, 36, 115, .15)
+        }
+
+        .ws-header h2 {
+            font-family: var(--font-heading);
+            font-size: 20px;
+            font-weight: 800;
+            flex: 1
+        }
+
+        .ws-body {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            flex: 1;
+            overflow: hidden
+        }
+
+        .ws-left {
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(30, 63, 212, .15);
+            overflow-y: auto
+        }
+
+        .ws-right {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto
+        }
+
+        /* BILLING TABS */
+        .billing-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(30, 63, 212, .12)
+        }
+
+        .tab-btn-small {
+            font-family: var(--font-heading);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            padding: 7px 14px;
+            cursor: pointer;
+            transition: var(--tr)
+        }
+
+        .tab-btn-small.active {
+            color: var(--primary);
+            background: rgba(46, 36, 115, .08);
+            border-color: rgba(46, 36, 115, .25)
+        }
+
+        .tab-btn-small:hover:not(.active) {
+            color: var(--text-secondary)
+        }
+
+        .billing-tab-content {
+            display: none;
+            padding: 18px 20px
+        }
+
+        .billing-tab-content.active {
+            display: block
+        }
+
+        /* AVAILABLE ITEMS */
+        .avail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px
+        }
+
+        .avail-item {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            transition: var(--tr)
+        }
+
+        .avail-item:hover {
+            border-color: rgba(30, 63, 212, .4)
+        }
+
+        .avail-item h5 {
+            font-family: var(--font-heading);
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px
+        }
+
+        .avail-item .price {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            margin-bottom: 8px
+        }
+
+        .avail-item .qty-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px
+        }
+
+        .avail-item .qty-row label {
+            font-size: 11px;
+            color: var(--inactive-icon)
+        }
+
+        .avail-item input[type=number] {
+            width: 60px;
+            padding: 5px 8px;
+            font-size: 13px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-primary);
+            border-radius: 6px
+        }
+
+        .btn-add-small {
+            width: 100%;
+            font-family: var(--font-heading);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            color: var(--primary);
+            background: rgba(46, 36, 115, .08);
+            border: 1px solid rgba(46, 36, 115, .2);
+            border-radius: 6px;
+            padding: 7px;
+            cursor: pointer;
+            transition: var(--tr)
+        }
+
+        .btn-add-small:hover {
+            background: rgba(46, 36, 115, .15)
+        }
+
+        .pkg-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            cursor: pointer;
+            transition: var(--tr);
+            margin-bottom: 10px
+        }
+
+        .pkg-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-1px)
+        }
+
+        .pkg-card h4 {
+            font-family: var(--font-heading);
+            font-size: 14px;
+            font-weight: 700
+        }
+
+        .pkg-total {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            margin: 4px 0
+        }
+
+        .pkg-hint {
+            font-size: 11px;
+            color: var(--accent-gold);
+            font-family: var(--font-heading)
+        }
+
+        /* RIGHT PANEL */
+        .bill-panel {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px
+        }
+
+        .bill-section-title {
+            font-family: var(--font-heading);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, .06);
+            margin-bottom: 10px
+        }
+
+        .guest-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px
+        }
+
+        .form-label {
+            font-family: var(--font-heading);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            color: var(--inactive-icon)
+        }
+
+        .form-input {
+            padding: 9px 12px;
+            font-size: 14px;
+            font-family: var(--font-heading);
+            color: var(--text-primary);
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius-sm);
+            outline: none;
+            transition: var(--tr)
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-blue);
+            background: rgba(30, 63, 212, .1)
+        }
+
+        .form-select {
+            padding: 9px 12px;
+            font-size: 14px;
+            font-family: var(--font-heading);
+            color: var(--text-primary);
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            outline: none;
+            transition: var(--tr)
+        }
+
+        .form-select:focus {
+            border-color: var(--accent-blue)
+        }
+
+        .form-select option {
+            background: var(--bg-mid)
+        }
+
+        .table-sugg {
+            font-size: 12px;
+            color: var(--accent-gold);
+            font-family: var(--font-heading);
+            background: rgba(240, 180, 41, .08);
+            border: 1px solid rgba(240, 180, 41, .2);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            line-height: 1.5
+        }
+
+        .billing-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 260px;
+            overflow-y: auto
+        }
+
+        .billing-item {
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-sm);
+            padding: 12px
+        }
+
+        .billing-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px
+        }
+
+        .billing-item-header h5 {
+            font-family: var(--font-heading);
+            font-size: 13px;
+            font-weight: 600
+        }
+
+        .billing-item-qty {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px
+        }
+
+        .billing-item-qty label {
+            font-size: 11px;
+            color: var(--inactive-icon)
+        }
+
+        .billing-item-qty input {
+            width: 70px;
+            padding: 4px 8px;
+            font-size: 13px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: #fff;
+            border-radius: 5px
+        }
+
+        .billing-item-qty span {
+            font-size: 11px;
+            color: var(--inactive-icon)
+        }
+
+        .billing-item-tot {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-secondary)
+        }
+
+        .billing-item-tot .itv {
+            color: #fff;
+            font-weight: 700;
+            font-family: var(--font-heading)
+        }
+
+        .totals-block {
+            background: #FFFFFF;
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 16px
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 13px;
+            color: var(--text-secondary)
+        }
+
+        .total-row span:last-child {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            color: var(--text-primary)
+        }
+
+        .total-row.grand {
+            padding-top: 10px;
+            margin-top: 8px;
+            border-top: 1px solid #FFFFFF
+        }
+
+        .total-row.grand span:first-child {
+            font-family: var(--font-heading);
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-primary)
+        }
+
+        .total-row.grand span:last-child {
+            font-size: 22px;
+            color: var(--accent-gold)
+        }
+
+        .empty-state {
+            font-family: var(--font-heading);
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 24px;
+            font-style: italic
+        }
+
+        /* MENU MGMT */
+        #menuManagementScreen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            min-height: calc(100vh - 64px);
+            animation: fi .3s ease
+        }
+
+        #menuManagementScreen.active {
+            display: flex
+        }
+
+        #serviceManagementScreen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            min-height: calc(100vh - 64px);
+            animation: fi .3s ease
+        }
+
+        #serviceManagementScreen.active {
+            display: flex
+        }
+
+        .mgmt-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 32px;
+            border-bottom: 1px solid rgba(46, 36, 115, .15)
+        }
+
+        .mgmt-header h2 {
+            font-family: var(--font-heading);
+            font-size: 20px;
+            font-weight: 800;
+            flex: 1
+        }
+
+        .mgmt-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            flex: 1;
+            overflow: hidden
+        }
+
+        .mgmt-col {
+            padding: 24px;
+            overflow-y: auto
+        }
+
+        .mgmt-col+.mgmt-col {
+            border-left: 1px solid rgba(46, 36, 115, .15)
+        }
+
+        .mgmt-col-title {
+            font-family: var(--font-heading);
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(46, 36, 115, .1)
+        }
+
+        .add-form {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+        .add-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+
+        .menu-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .menu-item {
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px
+        }
+
+        .menu-item-info h4 {
+            font-family: var(--font-heading);
+            font-size: 13px;
+            font-weight: 700
+        }
+
+        .menu-item-info p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px
+        }
+
+        .menu-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0
+        }
+
+        .menu-item-price {
+            font-family: var(--font-heading);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary)
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            background: rgba(31, 36, 48, .85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px
+        }
+
+        .modal-overlay.active {
+            display: flex
+        }
+
+        .modal {
+            background: var(--bg-deep);
+            border: 1px solid rgba(46, 36, 115, .2);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 24px 80px rgba(46, 36, 115, .2)
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: var(--tr)
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(220, 50, 50, .2);
+            border-color: #dc3232;
+            color: #ff5555
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 24px
+        }
+
+        .receipt-header h2 {
+            font-family: var(--font-display);
+            font-size: 36px;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .receipt-header p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px
+        }
+
+        .receipt-section {
+            margin-bottom: 16px
+        }
+
+        .receipt-section h4 {
+            font-family: var(--font-heading);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(46, 36, 115, .1)
+        }
+
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 5px 0;
+            font-size: 13px
+        }
+
+        .ri-name {
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            flex: 1
+        }
+
+        .ri-det {
+            color: var(--text-muted);
+            font-size: 11px;
+            margin: 0 12px;
+            align-self: center
+        }
+
+        .ri-price {
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            font-weight: 700
+        }
+
+        .receipt-summary {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #FFFFFF
+        }
+
+        .rs-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 4px 0
+        }
+
+        .rs-row.total {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--card-border);
+            font-family: var(--font-heading);
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent-gold)
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px
+        }
+
+        .divider-label {
+            font-family: var(--font-heading);
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin: 12px 0 8px
+        }
+
+        @keyframes rsh {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* LEDGERCORE STYLES */
+        .ledger-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .ledger-card-title {
+            font-family: var(--font-heading);
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 10px;
+        }
+
+        .ledger-form {
+            display: grid;
+            gap: 12px;
+        }
+
+        .ledger-summary-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .ledger-transactions-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .ledger-item {
+            background: var(--input-bg);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid transparent;
+            transition: var(--tr);
+        }
+
+        .ledger-item:hover {
+            border-color: var(--accent-blue);
+            background: rgba(30, 63, 212, 0.1);
+        }
+
+        .ledger-summary-item {
+            background: var(--input-bg);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            border: 1px solid rgba(30, 63, 212, 0.15);
+        }
+
+        .ledger-btn-delete {
+            background: rgba(255, 85, 85, 0.1);
+            border: 1px solid rgba(255, 85, 85, 0.2);
+            color: #ff5555;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--tr);
+            margin-top: 5px;
+        }
+
+        .ledger-btn-delete:hover {
+            background: #ff5555;
+            color: #fff;
+        }
+
+        @media(max-width:900px) {
+            .ws-body {
+                grid-template-columns: 1fr;
+                height: auto;
+                overflow: visible;
+            }
+
+            .ws-left,
+            .ws-right {
+                height: auto;
+                overflow: visible;
+                border: none;
+            }
+
+            .ws-right {
+                border-top: 1px solid rgba(30, 63, 212, .15);
+                background: #fff;
+            }
+
+            .mgmt-body {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .app-nav {
+                padding: 0 var(--side-padding);
+            }
+
+            .panel {
+                padding: 20px var(--side-padding);
+            }
+
+            .hero-title {
+                font-size: 48px;
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+        }
+
+        @media(max-width:600px) {
+            .avail-grid {
+                grid-template-columns: 1fr
+            }
+
+            .btn-icon {
+                width: 44px;
+                height: 44px;
+            }
+
+            .tab-btn-small {
+                flex: 1;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 11px;
+            }
+
+            .billing-items-list {
+                max-height: none;
+                overflow: visible;
+            }
+
+            .billing-item {
+                padding: 16px;
+                margin-bottom: 8px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .btn-primary,
+            .btn-hero {
+                width: 100%;
+                justify-content: center;
+                height: var(--touch-target);
+            }
+
+            .form-input,
+            .form-select,
+            .btn-gold {
+                height: var(--touch-target);
+            }
+
+            .guest-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ws-header {
+                padding: 16px;
+                gap: 8px;
+            }
+
+            .ws-header h2 {
+                font-size: 16px;
+            }
+
+            .side-menu {
+                width: 85%;
+                max-width: 300px;
+            }
+
+            .total-row {
+                font-size: 13px;
+            }
+
+            .grand {
+                font-size: 18px;
+            }
+
+            .modal {
+                padding: 24px 16px;
+                border-radius: var(--radius-md);
+                max-height: 95vh;
+            }
+
+            .wl-logo {
+                font-size: 48px;
+            }
+
+            body {
+                width: 100vw;
+                overflow-x: hidden;
+            }
+
+            .ledger-summary-item div {
+                gap: 8px !important;
+            }
+
+            .receipt-header h2 {
+                font-size: 28px;
+            }
+        }
+
+        @media print {
+
+            .app-nav,
+            .billing-tabs,
+            .ws-left,
+            .modal-close-btn,
+            .modal-actions,
+            .mesh-bg,
+            #welcomeScreen,
+            .nav-links,
+            .nav-right {
+                display: none !important
+            }
+
+            .modal-overlay {
+                position: static;
+                background: white;
+                padding: 0
+            }
+
+            .modal {
+                background: white;
+                color: black;
+                box-shadow: none;
+                border: none;
+                max-height: none
+            }
+        }
+
+        ::placeholder {
+            color: var(--placeholder);
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mesh-bg"></div>
+
+    <!-- WELCOME -->
+    <div id="welcomeScreen">
+        <div class="wl-logo">BILLMATE</div>
+
+    </div>
+
+    <!-- SIDE MENU -->
+    <div class="side-menu-overlay" id="sideMenuOverlay"></div>
+    <div class="side-menu" id="sideMenu">
+        <div class="side-menu-header">
+            <div class="side-menu-logo">BillMate</div>
+        </div>
+        <button class="side-menu-item active" data-nav="plans">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span data-i18n="plans.title">Plans</span>
+        </button>
+        <button class="side-menu-item" data-nav="services">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                <path d="M9 12h6"></path>
+                <path d="M9 16h6"></path>
+                <path d="M12 8h.01"></path>
+            </svg>
+            <span data-i18n="services.title">Services</span>
+        </button>
+        <button class="side-menu-item" data-nav="ledgercore">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+            <span data-i18n="ledgercore.title">Finances</span>
+        </button>
+        <button class="side-menu-item" data-nav="menus">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <span data-i18n="menus.title">Menu Library</span>
+        </button>
+    </div>
+
+    <!-- APP -->
+    <div id="mainApp">
+        <nav class="app-nav">
+            <button class="btn-menu" id="btnMenu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="nav-logo">BILL<span class="nc">MATE</span></div>
+            <select id="languageSelector" class="lang-select">
+                <option value="en">EN</option>
+                <option value="uz">UZ</option>
+                <option value="ru">RU</option>
+                <option value="tm">TM</option>
+                <option value="tr">TR</option>
+            </select>
+        </nav>
+
+        <div id="mainScreen">
+            <!-- PLANS -->
+            <div id="plansPanel" class="panel active">
+                <div class="section-header">
+                    <div class="section-title" data-i18n="projects.title">My Projects</div>
+                    <button class="btn-primary" id="btnAddProject">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        <span data-i18n="projects.new">New Project</span>
+                    </button>
+                </div>
+                <div class="projects-grid" id="projectsGrid"></div>
+            </div>
+
+            <!-- MENUS -->
+            <div id="menusPanel" class="panel">
+                <div class="section-header">
+                    <div class="section-title" data-i18n="menus.title">Menus</div>
+                    <button class="btn-primary" id="btnAddMenuFolder">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        <span data-i18n="menus.new">New Menu</span>
+                    </button>
+                </div>
+                <div class="folders-grid" id="menuFoldersGrid"></div>
+            </div>
+
+            <!-- SERVICES -->
+            <div id="servicesPanel" class="panel">
+                <div class="section-header">
+                    <div class="section-title" data-i18n="services.title">Services</div>
+                    <button class="btn-primary" id="btnAddServiceFolder">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        <span data-i18n="services.new">New Service</span>
+                    </button>
+                </div>
+                <div class="folders-grid" id="serviceFoldersGrid"></div>
+            </div>
+
+            <!-- LEDGERCORE -->
+            <div id="ledgercorePanel" class="panel">
+                <!-- Projects List View -->
+                <div id="ledgerProjectsView">
+                    <div class="section-header">
+                        <div class="section-title" data-i18n="ledger.projects">Ledger Projects</div>
+                        <button class="btn-primary" id="btnNewLedgerProject">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            <span data-i18n="ledger.newProject">New Ledger Project</span>
+                        </button>
+                    </div>
+                    <div class="projects-grid" id="ledgerProjectsGrid"></div>
+                </div>
+
+                <!-- Project Detail View -->
+                <div id="ledgerProjectDetailView" style="display: none;">
+                    <div class="section-header">
+                        <button class="btn-secondary" id="btnBackToLedgerList">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M19 12H5M12 19l-7-7 7-7" />
+                            </svg>
+                            <span data-i18n="ledger.backToList">Back</span>
+                        </button>
+                        <div class="section-title" id="currentLedgerProjectName">Project Name</div>
+                        <div class="project-card-actions">
+                            <button class="btn-icon" id="btnRenameLedgerProject">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                </svg>
+                            </button>
+                            <button class="btn-icon danger" id="btnDeleteLedgerProject">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6" />
+                                    <path
+                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ledger-card">
+                        <h3 class="ledger-card-title" data-i18n="ledger.addTransaction">Add Transaction</h3>
+                        <div class="ledger-form">
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="ledger.type">Type</label>
+                                <select id="txType" class="form-select">
+                                    <option value="income" data-i18n="ledger.income">Income</option>
+                                    <option value="expense" data-i18n="ledger.expense">Expense</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="ledger.amount">Amount</label>
+                                <input type="number" id="txAmount" class="form-input" placeholder="0.00" min="0"
+                                    step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="ledger.currency">Currency</label>
+                                <select id="txCurrency" class="form-select">
+                                    <option value="USD">USD</option>
+                                    <option value="TRY">TRY</option>
+                                    <option value="TMT">TMT</option>
+                                    <option value="UZS">UZS</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="ledger.category">Category</label>
+                                <input type="text" id="txCategory" class="form-input" placeholder="e.g. Food, Salary">
+                            </div>
+                            <button class="btn-gold" id="btnAddTransaction" style="width: 100%;"
+                                data-i18n="ledger.addTransaction">Add Transaction</button>
+                        </div>
+                    </div>
+
+                    <div class="ledger-card">
+                        <h3 class="ledger-card-title" data-i18n="ledger.summary">Summary</h3>
+                        <div id="ledgerSummary" class="ledger-summary-grid"></div>
+                    </div>
+
+                    <div class="ledger-card">
+                        <h3 class="ledger-card-title" data-i18n="ledger.transactions">Transactions</h3>
+                        <div id="ledgerTransactions" class="ledger-transactions-grid"></div>
+                    </div>
+
+                    <div class="ledger-card">
+                        <h3 class="ledger-card-title" data-i18n="ledger.balance">Current Balance</h3>
+                        <div id="ledgerBalance" class="ledger-summary-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /mainScreen -->
+
+        <!-- WORKSPACE -->
+        <div id="workspaceScreen">
+            <div class="ws-header">
+                <button class="btn-secondary" id="btnBack">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    <span data-i18n="common.back">Back</span>
+                </button>
+                <h2 id="currentProjectName"></h2>
+                <button class="btn-icon" id="btnRenameProject" title="Rename">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                </button>
+                <button class="btn-icon danger" id="btnDeleteProject" title="Delete">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                </button>
+            </div>
+            <div class="ws-body">
+                <div class="ws-left">
+                    <div class="billing-tabs">
+                        <button class="tab-btn-small active" data-tab="food-billing" data-i18n="menu.food">Food</button>
+                        <button class="tab-btn-small" data-tab="beverage-billing"
+                            data-i18n="menu.beverage">Beverages</button>
+                        <button class="tab-btn-small" data-tab="service-billing"
+                            data-i18n="services.title">Services</button>
+                    </div>
+                    <div id="foodTabBilling" class="billing-tab-content active">
+                        <div id="availableFoodItems"></div>
+                    </div>
+                    <div id="beverageTabBilling" class="billing-tab-content">
+                        <div id="availableBeverageItems"></div>
+                    </div>
+                    <div id="serviceTabBilling" class="billing-tab-content">
+                        <div id="availableServiceItems"></div>
+                    </div>
+                </div>
+                <div class="ws-right">
+                    <div class="bill-panel">
+                        <div>
+                            <div class="bill-section-title" data-i18n="billing.guestCalc">Guest Calculator</div>
+                            <div class="guest-grid" style="margin-bottom:10px">
+                                <div class="form-group">
+                                    <label class="form-label" data-i18n="billing.numGuests">Guests</label>
+                                    <input type="number" id="numGuests" class="form-input" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" data-i18n="billing.costPerPerson">Cost/Person</label>
+                                    <input type="number" id="costPerPerson" class="form-input" value="0" min="0"
+                                        step="0.01">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom:10px">
+                                <label class="form-label" data-i18n="billing.chairsPerTable">Chairs/Table</label>
+                                <select id="chairsPerTable" class="form-select">
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8" selected>8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                </select>
+                            </div>
+                            <div id="tableSuggestion"></div>
+                        </div>
+                        <div>
+                            <div class="bill-section-title" data-i18n="billing.items">Billing Items</div>
+                            <div class="billing-items-list" id="billingItemsList">
+                                <p class="empty-state" data-i18n="billing.empty">No items added yet.</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="billing.discount">Discount</label>
+                            <select id="discountSelect" class="form-select">
+                                <option value="0" data-i18n="billing.noDiscount">No discount</option>
+                                <option value="0.05">5%</option>
+                                <option value="0.1">10%</option>
+                                <option value="0.15">15%</option>
+                                <option value="0.2">20%</option>
+                                <option value="0.25">25%</option>
+                            </select>
+                        </div>
+                        <div class="totals-block">
+                            <div class="total-row"><span data-i18n="billing.foodTotal">Food Total:</span><span
+                                    id="foodTotal">0.00</span></div>
+                            <div class="total-row"><span data-i18n="billing.beverageTotal">Beverage Total:</span><span
+                                    id="beverageTotal">0.00</span></div>
+                            <div class="total-row"><span data-i18n="billing.serviceTotal">Services Total:</span><span
+                                    id="servicesTotal">0.00</span></div>
+                            <div class="total-row"><span data-i18n="billing.guestTotal">Guest Total:</span><span
+                                    id="guestTotal">0.00</span></div>
+                            <div class="total-row grand"><span data-i18n="billing.grandTotal">Grand Total:</span><span
+                                    id="grandTotal">0.00</span></div>
+                        </div>
+                        <button class="btn-gold" id="btnGenerateReceipt" data-i18n="billing.generateReceipt">Generate
+                            Receipt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MENU MANAGEMENT -->
+        <div id="menuManagementScreen">
+            <div class="mgmt-header">
+                <button class="btn-secondary" id="btnBackFromMenus">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    <span data-i18n="common.back">Back</span>
+                </button>
+                <h2 id="menuManagementTitle">Menu</h2>
+            </div>
+            <div class="mgmt-body">
+                <div class="mgmt-col">
+                    <div class="mgmt-col-title" data-i18n="menus.foodItems">Food Items</div>
+                    <div class="add-form">
+                        <div class="add-form-row">
+                            <div class="form-group"><label class="form-label" data-i18n="menu.itemName">Item
+                                    name</label><input type="text" id="foodNameMenu" class="form-input"
+                                    placeholder="e.g. Pilaf"></div>
+                            <div class="form-group"><label class="form-label" data-i18n="menu.price">Price</label><input
+                                    type="text" id="foodPriceMenu" class="form-input" placeholder="0.00"></div>
+                        </div>
+                        <div class="add-form-row">
+                            <div class="form-group"><label class="form-label" data-i18n="menu.unit">Unit</label><select
+                                    id="foodUnitMenu" class="form-select">
+                                    <option value="portion" data-i18n="unit.portion">Portion</option>
+                                    <option value="kg" data-i18n="unit.kg">kg</option>
+                                    <option value="g" data-i18n="unit.g">g</option>
+                                    <option value="item" data-i18n="unit.item">Item</option>
+                                </select></div>
+                            <div class="form-group"><label class="form-label"
+                                    data-i18n="menu.serves">Serves</label><select id="foodServesInput"
+                                    class="form-select">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                </select></div>
+                        </div>
+                        <button class="btn-primary" id="btnAddFoodMenu" data-i18n="menu.addItem">Add Item</button>
+                    </div>
+                    <div class="menu-items-list" id="foodItemsListMenu"></div>
+                </div>
+                <div class="mgmt-col">
+                    <div class="mgmt-col-title" data-i18n="menus.beverageItems">Beverage Items</div>
+                    <div class="add-form">
+                        <div class="add-form-row">
+                            <div class="form-group"><label class="form-label" data-i18n="menu.beverageName">Beverage
+                                    name</label><input type="text" id="beverageNameMenu" class="form-input"
+                                    placeholder="e.g. Water"></div>
+                            <div class="form-group"><label class="form-label" data-i18n="menu.price">Price</label><input
+                                    type="text" id="beveragePriceMenu" class="form-input" placeholder="0.00"></div>
+                        </div>
+                        <div class="add-form-row">
+                            <div class="form-group"><label class="form-label"
+                                    data-i18n="menu.volume">Volume</label><select id="beverageVolumeMenu"
+                                    class="form-select">
+                                    <option value="100 ml">100 ml</option>
+                                    <option value="150 ml">150 ml</option>
+                                    <option value="180 ml">180 ml</option>
+                                    <option value="200 ml">200 ml</option>
+                                    <option value="220 ml">220 ml</option>
+                                    <option value="250 ml">250 ml</option>
+                                    <option value="300 ml">300 ml</option>
+                                    <option value="330 ml">330 ml</option>
+                                    <option value="350 ml">350 ml</option>
+                                    <option value="400 ml">400 ml</option>
+                                    <option value="450 ml">450 ml</option>
+                                    <option value="500 ml">500 ml</option>
+                                    <option value="0.5 l">0.5 l</option>
+                                    <option value="0.75 l">0.75 l</option>
+                                    <option value="1 l">1 l</option>
+                                    <option value="1.5 l">1.5 l</option>
+                                    <option value="2 l">2 l</option>
+                                    <option value="2.5 l">2.5 l</option>
+                                    <option value="3 l">3 l</option>
+                                </select></div>
+                            <div class="form-group"><label class="form-label" data-i18n="menu.perTable">Per
+                                    table</label><select id="beveragePerTableInput" class="form-select">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                </select></div>
+                        </div>
+                        <button class="btn-primary" id="btnAddBeverageMenu" data-i18n="menu.addItem">Add Item</button>
+                    </div>
+                    <div class="menu-items-list" id="beverageItemsListMenu"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVICE MANAGEMENT -->
+        <div id="serviceManagementScreen">
+            <div class="mgmt-header">
+                <button class="btn-secondary" id="btnBackFromServices">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    <span data-i18n="common.back">Back</span>
+                </button>
+                <h2 id="serviceManagementTitle">Service Group</h2>
+            </div>
+            <div class="mgmt-body" style="grid-template-columns:1fr">
+                <div class="mgmt-col">
+                    <div class="mgmt-col-title" data-i18n="services.available">Service Items</div>
+                    <div class="add-form" style="max-width:520px">
+                        <div class="add-form-row">
+                            <div class="form-group"><label class="form-label" data-i18n="service.name">Service
+                                    Name</label><input type="text" id="serviceNameInput" class="form-input"
+                                    placeholder="e.g. DJ, Photographer"></div>
+                            <div class="form-group"><label class="form-label"
+                                    data-i18n="service.price">Price</label><input type="text" id="servicePriceInput"
+                                    class="form-input" placeholder="0.00"></div>
+                        </div>
+                        <button class="btn-primary" id="btnAddServiceItem" data-i18n="service.add">Add Service</button>
+                    </div>
+                    <div class="menu-items-list" id="serviceItemsList" style="max-width:600px"></div>
+                </div>
+            </div>
+        </div>
+    </div><!-- /mainApp -->
+
+    <!-- RECEIPT MODAL -->
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal">
+            <button class="modal-close-btn" id="btnCloseReceipt">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+            <div id="receiptBody"></div>
+            <div class="modal-actions">
+                <button class="btn-primary" id="btnPrintReceipt" style="flex:1">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9" />
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                        <rect x="6" y="14" width="12" height="8" />
+                    </svg>
+                    Print
+                </button>
+                <button class="btn-secondary" id="btnCloseReceipt2" data-i18n="common.close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // TRANSLATIONS
+        const translations = {
+            en: {
+                "welcome.subtitle": "Professional Event Expense Calculator", "projects.title": "My Projects", "projects.new": "New Project", "workspace.back": "Back", "menu.title": "Menu Management", "menu.food": "Food", "menu.beverage": "Beverages", "menu.itemName": "Item name", "menu.beverageName": "Beverage name", "menu.price": "Price", "menu.addItem": "Add Item", "billing.title": "Event Billing", "billing.guestCalc": "Guest Calculator", "billing.numGuests": "Number of Guests", "billing.costPerPerson": "Cost per Person", "billing.numTables": "Number of Tables", "billing.chairsPerTable": "Chairs per Table", "billing.items": "Billing Items", "billing.empty": "No items added yet.", "billing.foodTotal": "Food Total:", "billing.beverageTotal": "Beverage Total:", "billing.guestTotal": "Guest Total:", "billing.discount": "Discount:", "billing.grandTotal": "Grand Total:", "billing.generateReceipt": "Generate Receipt", "receipt.title": "Receipt", "receipt.print": "Print", "quantity": "Quantity", "total": "Total", "addToBill": "Add to Bill", "tableSuggestion": "Suggested: {tables} tables with {chairs} chairs each for {guests} guests", "plans.title": "Plans", "plans.new": "Plans", "menus.title": "Menus", "menus.new": "Menus", "menus.totalPrice": "Total Price", "menus.itemCount": "{count} items", "menus.manage": "Manage Menus", "menus.available": "Available Menu Items", "menus.foodItems": "Food Items", "menus.beverageItems": "Beverage Items", "unit.portion": "Portion", "unit.kg": "kg", "unit.g": "g", "unit.item": "Item", "project.lastModified": "Last modified", "qty": "Qty", "services.title": "Services", "services.new": "Services", "services.totalPrice": "Total Price", "services.itemCount": "{count} services", "services.manage": "Service Management", "services.available": "Available Services", "service.name": "Service Name", "service.price": "Price", "billing.serviceTotal": "Services Total:", "menu.serves": "Serves (people/unit)", "menu.perTable": "Per table",
+                "hero.tag": "Event Finance Management", "hero.title1": "Empower Your Events", "hero.title2": "With Trusted Solutions", "hero.desc": "We are a professional event expense management platform dedicated to delivering strategic and precise billing solutions that streamline planning and create lasting value.", "hero.cta": "GET STARTED",
+                "common.back": "Back", "common.rename": "Rename", "common.delete": "Delete", "common.deleteConfirm": "Delete?", "common.projectDeleteConfirm": "Delete this project?", "common.close": "Close",
+                "menu.unit": "Unit", "menu.volume": "Volume",
+                "service.group": "Service Group", "service.add": "Add Service",
+                "msg.noProjects": "No projects yet. Create your first project!", "msg.noMenus": "No menus yet. Create your first menu!", "msg.noServices": "No services yet. Create your first service group!", "msg.noMenusCreated": "No menus created yet.", "msg.noServicesCreated": "No services created yet.", "msg.clickToAddAll": "▶ Click to add all to bill", "msg.clickToAddAllServices": "▶ Click to add all services", "msg.orAddIndividually": "Or add individually:", "msg.enterValid": "Enter valid name and price", "msg.newMenuDefault": "New Menu", "msg.newServiceDefault": "New Service Group",
+                "msg.servesCount": "serves {count}", "msg.perTableShort": "/table", "receipt.appName": "BILLMATE", "billing.noDiscount": "No Discount",
+                "ledgercore.title": "Finance", "ledger.addTransaction": "Add Transaction", "ledger.summary": "Summary", "ledger.transactions": "Transactions", "ledger.type": "Type", "ledger.amount": "Amount", "ledger.currency": "Currency", "ledger.category": "Category", "ledger.income": "Income", "ledger.expense": "Expense", "ledger.projects": "Finance Projects", "ledger.newProject": "New Finance Project", "ledger.backToList": "Back to Projects", "msg.noLedgerProjects": "No projects yet. Create your first finance project!", "ledger.projectName": "Project Name", "ledger.balance": "Current Balance"
+            },
+            uz: {
+                "welcome.subtitle": "Professional Tadbir Xarajatlari Kalkulyatori", "projects.title": "Mening Loyihalarim", "projects.new": "Yangi Loyiha", "workspace.back": "Orqaga", "menu.title": "Menyu Boshqaruvi", "menu.food": "Ovqatlar", "menu.beverage": "Ichimliklar", "menu.itemName": "Mahsulot nomi", "menu.beverageName": "Ichimlik nomi", "menu.price": "Narx", "menu.addItem": "Qo'shish", "billing.title": "Tadbir Hisob-kitobi", "billing.guestCalc": "Mehmonlar Kalkulyatori", "billing.numGuests": "Mehmonlar Soni", "billing.costPerPerson": "Bir Kishiga Narx", "billing.numTables": "Stollar Soni", "billing.chairsPerTable": "Har Bir Stolda O'rindiqlar", "billing.items": "Hisob Elementlari", "billing.empty": "Hali hech narsa qo'shilmagan.", "billing.foodTotal": "Ovqatlar Jami:", "billing.beverageTotal": "Ichimliklar Jami:", "billing.guestTotal": "Mehmonlar Jami:", "billing.discount": "Chegirma:", "billing.grandTotal": "Umumiy Jami:", "billing.generateReceipt": "Chek Yaratish", "receipt.title": "Chek", "receipt.print": "Chop Etish", "quantity": "Miqdor", "total": "Jami", "addToBill": "Hisobga Qo'shish", "tableSuggestion": "Tavsiya: {guests} mehmon uchun {chairs} o'rindiqli {tables} stol", "plans.title": "Rejalar", "plans.new": "Rejalar", "menus.title": "Menyular", "menus.new": "Menyular", "menus.totalPrice": "Jami Narx", "menus.itemCount": "{count} ta element", "menus.manage": "Menyularni Boshqarish", "menus.available": "Mavjud Menyu Elementlari", "menus.foodItems": "Ovqat Elementlari", "menus.beverageItems": "Ichimlik Elementlari", "unit.portion": "Porsiya", "unit.kg": "kg", "unit.g": "g", "unit.item": "Dona", "project.lastModified": "Oxirgi o'zgarish", "qty": "Miqdor", "services.title": "Xizmatlar", "services.new": "Xizmatlar", "services.totalPrice": "Jami Narx", "services.itemCount": "{count} ta xizmat", "services.manage": "Xizmatlar Boshqaruvi", "services.available": "Mavjud Xizmatlar", "service.name": "Xizmat nomi", "service.price": "Narx", "billing.serviceTotal": "Xizmatlar Jami:", "menu.serves": "Necha kishiga?", "menu.perTable": "Har bir stolga",
+                "hero.tag": "Tadbir Moliya Boshqaruvi", "hero.title1": "Tadbirlaringizni Kuchaytiring", "hero.title2": "Ishonchli Yechimlar Bilan", "hero.desc": "Biz strategik va aniq hisob-kitob yechimlarini taqdim etishga bag'ishlangan professional tadbir xarajatlarini boshqarish platformasimiz.", "hero.cta": "BOSHLASH",
+                "common.back": "Orqaga", "common.rename": "Nomini o'zgartirish", "common.delete": "O'chirish", "common.deleteConfirm": "O'chirilsinmi?", "common.projectDeleteConfirm": "Bu loyiha o'chirilsinmi?", "common.close": "Yopish",
+                "menu.unit": "Birlik", "menu.volume": "Hajm",
+                "service.group": "Xizmat Guruhi", "service.add": "Xizmat Qo'shish",
+                "msg.noProjects": "Loyiha yo'q. Birinchi loyihangizni yarating!", "msg.noMenus": "Menyu yo'q. Ilkinji menyuingizni yarating!", "msg.noServices": "Xizmatlar yo'q. Birinchi xizmat guruhingizni yarating!", "msg.noMenusCreated": "Menyular yaratilmagan.", "msg.noServicesCreated": "Xizmatlar yaratilmagan.", "msg.clickToAddAll": "▶ Hammasini hisobga qo'shish", "msg.clickToAddAllServices": "▶ Barcha xizmatlarni qo'shish", "msg.orAddIndividually": "Yoki alohida qo'shing:", "msg.enterValid": "To'g'ri nom va narx kiriting", "msg.newMenuDefault": "Yangi Menyu", "msg.newServiceDefault": "Yangi Xizmat Guruhi",
+                "msg.servesCount": "{count} kishilik", "msg.perTableShort": "/stol", "receipt.appName": "BILLMATE", "billing.noDiscount": "Chegirma Yo'q",
+                "ledgercore.title": "Moliya", "ledger.addTransaction": "Tranzaksiya Qo'shish", "ledger.summary": "Xulosa", "ledger.transactions": "Tranzaksiyalar", "ledger.type": "Turi", "ledger.amount": "Summa", "ledger.currency": "Valyuta", "ledger.category": "Kategoriya", "ledger.income": "Kirim", "ledger.expense": "Chiqim", "ledger.projects": "Moliya Loyihalari", "ledger.newProject": "Yangi Moliya Loyihasi", "ledger.backToList": "Loyihalarga qaytish", "msg.noLedgerProjects": "Loyiha yo'q. Birinchi loyihangizni yarating!", "ledger.projectName": "Loyiha Nomi", "ledger.balance": "Joriy Balans"
+            },
+            ru: {
+                "welcome.subtitle": "Профессиональный Калькулятор Расходов", "projects.title": "Мои Проекты", "projects.new": "Новый Проект", "workspace.back": "Назад", "menu.title": "Управление Меню", "menu.food": "Еда", "menu.beverage": "Напитки", "menu.itemName": "Название блюда", "menu.beverageName": "Название напитка", "menu.price": "Цена", "menu.addItem": "Добавить", "billing.title": "Расчёт Мероприятия", "billing.guestCalc": "Калькулятор Гостей", "billing.numGuests": "Количество Гостей", "billing.costPerPerson": "Цена за Человека", "billing.numTables": "Количество Столов", "billing.chairsPerTable": "Стульев за Столом", "billing.items": "Позиции Счёта", "billing.empty": "Пока ничего не добавлено.", "billing.foodTotal": "Итого Еда:", "billing.beverageTotal": "Итого Напитки:", "billing.guestTotal": "Итого Гости:", "billing.discount": "Скидка:", "billing.grandTotal": "Общий Итог:", "billing.generateReceipt": "Создать Чек", "receipt.title": "Чек", "receipt.print": "Печать", "quantity": "Количество", "total": "Итого", "addToBill": "В Счёт", "tableSuggestion": "Рекомендуется: {tables} столов по {chairs} стульев для {guests} гостей", "plans.title": "Планы", "plans.new": "Планы", "menus.title": "Меню", "menus.new": "Меню", "menus.totalPrice": "Общая Сумма", "menus.itemCount": "{count} позиций", "menus.manage": "Управление Меню", "menus.available": "Доступные Позиции", "menus.foodItems": "Позиции Еды", "menus.beverageItems": "Позиции Напитков", "unit.portion": "Порция", "unit.kg": "кг", "unit.g": "г", "unit.item": "Штука", "project.lastModified": "Последнее изменение", "qty": "Кол-во", "services.title": "Услуги", "services.new": "Услуги", "services.totalPrice": "Общая Сумма", "services.itemCount": "{count} услуг", "services.manage": "Управление Услугами", "services.available": "Доступные Услуги", "service.name": "Название услуги", "service.price": "Цена", "billing.serviceTotal": "Итого Услуги:", "menu.serves": "На скольких чел.?", "menu.perTable": "На один стол",
+                "hero.tag": "Управление Финансами Мероприятий", "hero.title1": "Улучшите Ваши Мероприятия", "hero.title2": "С Надежными Решениями", "hero.desc": "Мы - профессиональная платформа управления расходами на мероприятия, предоставляющая стратегические и точные решения по выставлению счетов.", "hero.cta": "НАЧАТЬ",
+                "common.back": "Назад", "common.rename": "Переименовать", "common.delete": "Удалить", "common.deleteConfirm": "Удалить?", "common.projectDeleteConfirm": "Удалить этот проект?", "common.close": "Закрыть",
+                "menu.unit": "Ед. изм.", "menu.volume": "Объем",
+                "service.group": "Группа Услуг", "service.add": "Добавить Услугу",
+                "msg.noProjects": "Нет проектов. Создайте свой первый проект!", "msg.noMenus": "Нет меню. Создайте свое первое меню!", "msg.noServices": "Нет услуг. Создайте свою первую группу услуг!", "msg.noMenusCreated": "Меню еще не созданы.", "msg.noServicesCreated": "Услуги еще не созданы.", "msg.clickToAddAll": "▶ Нажмите, чтобы добавить всё в счет", "msg.clickToAddAllServices": "▶ Нажмите, чтобы добавить все услуги", "msg.orAddIndividually": "Или добавьте отдельно:", "msg.enterValid": "Введите корректное название и цену", "msg.newMenuDefault": "Новое Меню", "msg.newServiceDefault": "Новая Группа Услуг",
+                "msg.servesCount": "на {count} чел.", "msg.perTableShort": "/стол", "receipt.appName": "BILLMATE", "billing.noDiscount": "Без Скидки",
+                "ledgercore.title": "Финансы", "ledger.addTransaction": "Добавить транзакцию", "ledger.summary": "Итоги", "ledger.transactions": "Транзакции", "ledger.type": "Тип", "ledger.amount": "Сумма", "ledger.currency": "Валюта", "ledger.category": "Категория", "ledger.income": "Доход", "ledger.expense": "Расход", "ledger.projects": "Финансовые Проекты", "ledger.newProject": "Новый Финансовый Проект", "ledger.backToList": "К списку проектов", "msg.noLedgerProjects": "Проектов еще нет. Создайте первый финансовый проект!", "ledger.projectName": "Название проекта", "ledger.balance": "Текущий Баланс"
+            },
+            tm: {
+                "welcome.subtitle": "Professional Çäre Çykdajy Kalkulýatory", "projects.title": "Meniň Taslamalarym", "projects.new": "Täze Taslama", "workspace.back": "Yzyna", "menu.title": "Menýu Dolandyryşy", "menu.food": "Iýmitler", "menu.beverage": "Içgiler", "menu.itemName": "Haryt ady", "menu.beverageName": "Içgi ady", "menu.price": "Baha", "menu.addItem": "Goşmak", "billing.title": "Çäre Hasaplaşygy", "billing.guestCalc": "Myhmanlary Hasaplamak", "billing.numGuests": "Myhmanlaryň Sany", "billing.costPerPerson": "Bir Adam Üçin Baha", "billing.numTables": "Stollaryň Sany", "billing.chairsPerTable": "Her Stolda Oturgyçlar", "billing.items": "Hasap Elementleri", "billing.empty": "Entek hiç zat goşulmady.", "billing.foodTotal": "Iýmitler Jemi:", "billing.beverageTotal": "Içgiler Jemi:", "billing.guestTotal": "Myhmanlar Jemi:", "billing.discount": "Arzanladyş:", "billing.grandTotal": "Umumy Jemi:", "billing.generateReceipt": "Çek Döretmek", "receipt.title": "Çek", "receipt.print": "Çap Etmek", "quantity": "Mukdar", "total": "Jemi", "addToBill": "Hasaba Goşmak", "tableSuggestion": "Maslahat: {guests} myhman üçin {chairs} oturgyçly {tables} stol", "plans.title": "Meýilnamalar", "plans.new": "Meýilnamalar", "menus.title": "Menýular", "menus.new": "Menýular", "menus.totalPrice": "Jami Bahar", "menus.itemCount": "{count} element", "menus.manage": "Menýulary Dolandyrmak", "menus.available": "Elýeterli Menýu Elementleri", "menus.foodItems": "Iýmit Elementleri", "menus.beverageItems": "Içgi Elementleri", "unit.portion": "Porsiýa", "unit.kg": "kg", "unit.g": "g", "unit.item": "Sany", "project.lastModified": "Soňky üýtgeşme", "qty": "Mukdar", "services.title": "Hyzmatlar", "services.new": "Hyzmatlar", "services.totalPrice": "Jami Baha", "services.itemCount": "{count} hyzmat", "services.manage": "Hyzmatlar Dolandyryşy", "services.available": "Elýeterli Hyzmatlar", "service.name": "Hyzmat Ady", "service.price": "Baha", "billing.serviceTotal": "Hyzmatlar Jemi:", "menu.serves": "Adam sany", "menu.perTable": "Her stol üçin",
+                "hero.tag": "Çäre Maliýe Dolandyryşy", "hero.title1": "Çäreleriňizi Güýçlendiriň", "hero.title2": "Ynamly Çözgütler Bilen", "hero.desc": "Biz meýilnamalaşdyrmagy ýönekeýleşdirýän we durnukly gymmatlyklary döredýän strategiki we takyk hasaplaşyk çözgütlerini hödürleýän platforma.", "hero.cta": "BAŞLAMAK",
+                "contact.title": "BIZ BILEN HABARLAŞYŇ", "contact.desc": "Durnukly ösüş üçin innowasion strategiýalary we täsirli netijeleri hödürleýän ynamly iş çözgütleri üpjünçisi.", "contact.services": "Hyzmatlar", "contact.s_planning": "Çäre Meýilnamalaşdyryş", "contact.s_menu": "Menýu Dolandyryşy", "contact.s_billing": "Hasaplaşyk we Hasabatlar", "contact.s_guest": "Myhman Kalkulýatory", "contact.touch": "Habarlaşmak", "contact.follow": "Bizi Yzarlanyň",
+                "common.back": "Yzyna", "common.rename": "Adyny üýtgetmek", "common.delete": "Pozmak", "common.deleteConfirm": "Pozmalymy?", "common.projectDeleteConfirm": "Bu taslamany pozmalymy?", "common.close": "Ýapmak",
+                "menu.unit": "Ölçeg birligi", "menu.volume": "Göwrüm",
+                "service.group": "Hyzmat Topary", "service.add": "Hyzmat Goşmak",
+                "msg.noProjects": "Taslama ýok. Ilkinji taslamaňyzy dörediň!", "msg.noMenus": "Menýu ýok. Ilkinji menýuňyzy dörediň!", "msg.noServices": "Hyzmat ýok. Ilkinji hyzmat toparyňyzy dörediň!", "msg.noMenusCreated": "Entek menýu döredilmedi.", "msg.noServicesCreated": "Entek hyzmat döredilmedi.", "msg.clickToAddAll": "▶ Hemmesini hasaba goşmak üçin basyň", "msg.clickToAddAllServices": "▶ Barcha hyzmatlary goşmak üçin basyň", "msg.orAddIndividually": "Ýa-da aýratyn goşuň:", "msg.enterValid": "Dogry at we baha giriziň", "msg.newMenuDefault": "Täze Menýu", "msg.newServiceDefault": "Täze Hyzmat Topary",
+                "msg.servesCount": "{count} adamlyk", "msg.perTableShort": "/stol", "receipt.appName": "BILLMATE", "billing.noDiscount": "Arzanladyş Ýok",
+                "ledgercore.title": "Maliýe", "ledger.addTransaction": "Tranzaksiýa Goşmak", "ledger.summary": "Gysgaça", "ledger.transactions": "Tranzaksiýalar", "ledger.type": "Görnüşi", "ledger.amount": "Summa", "ledger.currency": "Walýuta", "ledger.category": "Kategoriýa", "ledger.income": "Girdeji", "ledger.expense": "Çykdajy", "ledger.projects": "Maliýe Taslamalary", "ledger.newProject": "Täze Maliýe Taslamasy", "ledger.backToList": "Taslamalara dolan", "msg.noLedgerProjects": "Taslama ýok. Ilkinji taslamaňyzy dörediň!", "ledger.projectName": "Taslamanyň Ady", "ledger.balance": "Häzirki Balans"
+            },
+            tr: {
+                "welcome.subtitle": "Profesyonel Etkinlik Masraf Hesaplayıcı", "projects.title": "Projelerim", "projects.new": "Yeni Proje", "workspace.back": "Geri", "menu.title": "Menü Yönetimi", "menu.food": "Yemekler", "menu.beverage": "İçecekler", "menu.itemName": "Ürün adı", "menu.beverageName": "İçecek adı", "menu.price": "Fiyat", "menu.addItem": "Ekle", "billing.title": "Etkinlik Hesaplaması", "billing.guestCalc": "Misafir Hesaplayıcı", "billing.numGuests": "Misafir Sayısı", "billing.costPerPerson": "Kişi Başı Fiyat", "billing.numTables": "Masa Sayısı", "billing.chairsPerTable": "Masa Başına Sandalye", "billing.items": "Hesap Kalemleri", "billing.empty": "Henüz hiçbir şey eklenmedi.", "billing.foodTotal": "Yemek Toplamı:", "billing.beverageTotal": "İçecek Toplamı:", "billing.guestTotal": "Misafir Toplamı:", "billing.discount": "İndirim:", "billing.grandTotal": "Genel Toplam:", "billing.generateReceipt": "Fiş Oluştur", "receipt.title": "Fiş", "receipt.print": "Yazdır", "quantity": "Miktar", "total": "Toplam", "addToBill": "Hesaba Ekle", "tableSuggestion": "Öneri: {guests} misafir için {chairs} sandalyeli {tables} masa", "plans.title": "Planlar", "plans.new": "Planlar", "menus.title": "Menüler", "menus.new": "Menüler", "menus.totalPrice": "Toplam Fiyat", "menus.itemCount": "{count} öğe", "menus.manage": "Menüleri Yönet", "menus.available": "Mevcut Menü Öğeleri", "menus.foodItems": "Yemek Öğeleri", "menus.beverageItems": "İçecek Öğeleri", "unit.portion": "Porsiyon", "unit.kg": "kg", "unit.g": "g", "unit.item": "Adet", "project.lastModified": "Son değişiklik", "qty": "Miktar", "services.title": "Hizmetler", "services.new": "Hizmetler", "services.totalPrice": "Toplam Fiyat", "services.itemCount": "{count} hizmet", "services.manage": "Hizmet Yönetimi", "services.available": "Mevcut Hizmetler", "service.name": "Hizmet Adı", "service.price": "Fiyat", "billing.serviceTotal": "Hizmetler Toplamı:", "menu.serves": "Kaç kişilik?", "menu.perTable": "Masa başına",
+                "hero.tag": "Etkinlik Finans Yönetimi", "hero.title1": "Etkinliklerinizi Güçlendirin", "hero.title2": "Güvenilir Çözümlerle", "hero.desc": "Planlamayı kolaylaştıran ve kalıcı değer yaratan stratejik ve kesin faturalandırma çözümleri sunmaya kendini adamış profesyonel bir platformuz.", "hero.cta": "BAŞLAYIN",
+                "common.back": "Geri", "common.rename": "Yeniden Adlandır", "common.delete": "Sil", "common.deleteConfirm": "Silinsin mi?", "common.projectDeleteConfirm": "Bu proje silinsin mi?", "common.close": "Kapat",
+                "menu.unit": "Birim", "menu.volume": "Hacim",
+                "service.group": "Hizmet Grubu", "service.add": "Hizmet Ekle",
+                "msg.noProjects": "Henüz proje yok. İlk projenizi oluşturun!", "msg.noMenus": "Henüz menü yok. İlk menünüzü oluşturun!", "msg.noServices": "Henüz hizmet yok. İlk hizmet grubunuzu oluşturun!", "msg.noMenusCreated": "Henüz menü oluşturulmadı.", "msg.noServicesCreated": "Henüz hizmet oluşturulmadı.", "msg.clickToAddAll": "▶ Hepsini hesaba eklemek için tıklayın", "msg.clickToAddAllServices": "▶ Tüm hizmetleri eklemek için tıklayın", "msg.orAddIndividually": "Veya tek tek ekleyin:", "msg.enterValid": "Geçerli bir ad ve fiyat girin", "msg.newMenuDefault": "Yeni Menü", "msg.newServiceDefault": "Yeni Hizmet Grubu",
+                "msg.servesCount": "{count} kişilik", "msg.perTableShort": "/masa", "receipt.appName": "BILLMATE", "billing.noDiscount": "İndirim Yok",
+                "ledgercore.title": "Finans", "ledger.addTransaction": "İşlem Ekle", "ledger.summary": "Özet", "ledger.transactions": "İşlemler", "ledger.type": "Tür", "ledger.amount": "Tutar", "ledger.currency": "Para Birimi", "ledger.category": "Kategori", "ledger.income": "Gelir", "ledger.expense": "Gider", "ledger.net": "Net", "ledger.projects": "Finans Projeleri", "ledger.newProject": "Yeni Finans Projesi", "ledger.backToList": "Projelere Dön", "msg.noLedgerProjects": "Henüz proje yok. İlk finans projenizi oluşturun!", "ledger.projectName": "Proje Adı", "ledger.balance": "Güncel Bakiye"
+            }
+        };
+
+        function t(k) { return (translations[currentLanguage] && translations[currentLanguage][k]) || k }
+
+        // STATE
+        let currentLanguage = 'en', projects = [], currentProject = null, menuFolders = [], currentMenuFolder = null, serviceFolders = [], currentServiceFolder = null;
+
+        // REFS
+        const welcomeScreen = document.getElementById('welcomeScreen'), mainApp = document.getElementById('mainApp'), mainScreen = document.getElementById('mainScreen');
+        const workspaceScreen = document.getElementById('workspaceScreen'), menuManagementScreen = document.getElementById('menuManagementScreen'), serviceManagementScreen = document.getElementById('serviceManagementScreen');
+        const langSel = document.getElementById('languageSelector');
+        const panels = { plans: document.getElementById('plansPanel'), menus: document.getElementById('menusPanel'), services: document.getElementById('servicesPanel'), ledgercore: document.getElementById('ledgercorePanel') };
+        const projectsGrid = document.getElementById('projectsGrid'), menuFoldersGrid = document.getElementById('menuFoldersGrid'), serviceFoldersGrid = document.getElementById('serviceFoldersGrid');
+        const numGuestsEl = document.getElementById('numGuests'), costPerPersonEl = document.getElementById('costPerPerson'), chairsPerTableEl = document.getElementById('chairsPerTable');
+        const tableSugEl = document.getElementById('tableSuggestion'), billingItemsList = document.getElementById('billingItemsList');
+        const foodTotalEl = document.getElementById('foodTotal'), beverageTotalEl = document.getElementById('beverageTotal'), servicesTotalEl = document.getElementById('servicesTotal'), guestTotalEl = document.getElementById('guestTotal'), grandTotalEl = document.getElementById('grandTotal');
+        const discountSelect = document.getElementById('discountSelect'), receiptModal = document.getElementById('receiptModal'), receiptBody = document.getElementById('receiptBody');
+
+        // INIT
+        function init() {
+            loadMenuFolders(); loadServiceFolders(); loadProjects();
+            document.querySelectorAll('.nav-link[data-nav]').forEach(b => b.addEventListener('click', () => navigateTo(b.dataset.nav)));
+            langSel.addEventListener('change', e => { currentLanguage = e.target.value; updateLanguage(); });
+
+            document.getElementById('btnAddProject').addEventListener('click', createNewProject);
+            document.getElementById('btnAddMenuFolder').addEventListener('click', createNewMenuFolder);
+            document.getElementById('btnAddServiceFolder').addEventListener('click', createNewServiceFolder);
+            document.getElementById('btnBack').addEventListener('click', () => navigateTo('plans'));
+            document.getElementById('btnRenameProject').addEventListener('click', () => { if (!currentProject) return; const n = prompt(t('common.rename') + ':', currentProject.name); if (n && n.trim()) { currentProject.name = n.trim(); document.getElementById('currentProjectName').textContent = n.trim(); saveProjects(); renderProjects(); } });
+            document.getElementById('btnDeleteProject').addEventListener('click', () => { if (!currentProject) return; if (confirm(t('common.projectDeleteConfirm'))) { projects = projects.filter(p => p.id !== currentProject.id); saveProjects(); navigateTo('plans'); } });
+            document.getElementById('btnBackFromMenus').addEventListener('click', backToMain);
+            document.getElementById('btnBackFromServices').addEventListener('click', backToMain);
+            document.getElementById('btnAddFoodMenu').addEventListener('click', addFoodToMenu);
+            document.getElementById('btnAddBeverageMenu').addEventListener('click', addBeverageToMenu);
+            document.getElementById('btnAddServiceItem').addEventListener('click', addServiceToFolder);
+            document.querySelectorAll('.tab-btn-small').forEach(b => b.addEventListener('click', () => switchBillingTab(b.dataset.tab)));
+            numGuestsEl.addEventListener('input', () => { updateGuestCalc(); updatePackageQtys(); });
+            costPerPersonEl.addEventListener('input', updateTotals);
+            chairsPerTableEl.addEventListener('change', () => { updateGuestCalc(); updatePackageQtys(); });
+            discountSelect.addEventListener('change', updateTotals);
+            document.getElementById('btnGenerateReceipt').addEventListener('click', generateReceipt);
+            document.getElementById('btnCloseReceipt').addEventListener('click', () => receiptModal.classList.remove('active'));
+            document.getElementById('btnCloseReceipt2').addEventListener('click', () => receiptModal.classList.remove('active'));
+            document.getElementById('btnPrintReceipt').addEventListener('click', () => window.print());
+            receiptModal.addEventListener('click', e => { if (e.target === receiptModal) receiptModal.classList.remove('active'); });
+
+            // LEDGERCORE INIT
+            const btnNewLedger = document.getElementById('btnNewLedgerProject');
+            if (btnNewLedger) btnNewLedger.addEventListener('click', createNewLedgerProject);
+
+            const btnBackLedger = document.getElementById('btnBackToLedgerList');
+            if (btnBackLedger) btnBackLedger.addEventListener('click', () => { LedgerCore.setCurrentProject(null); renderLedgerCore(); });
+
+            const btnDelLedger = document.getElementById('btnDeleteLedgerProject');
+            if (btnDelLedger) btnDelLedger.addEventListener('click', () => {
+                if (confirm(t('common.projectDeleteConfirm'))) {
+                    const curr = LedgerCore.getCurrentProject();
+                    if (curr) { LedgerCore.deleteProject(curr.id); renderLedgerCore(); }
+                }
+            });
+
+            const btnRenLedger = document.getElementById('btnRenameLedgerProject');
+            if (btnRenLedger) btnRenLedger.addEventListener('click', () => {
+                const curr = LedgerCore.getCurrentProject();
+                if (curr) { renameLedgerProjectUI(curr.id, curr.name); }
+            });
+
+            const btnAddTx = document.getElementById('btnAddTransaction');
+            if (btnAddTx) {
+                btnAddTx.addEventListener('click', () => {
+                    const type = document.getElementById('txType').value;
+                    const amount = parseFloat(document.getElementById('txAmount').value);
+                    const currency = document.getElementById('txCurrency').value;
+                    const category = document.getElementById('txCategory').value;
+                    if (!category || isNaN(amount) || amount < 0) { alert(t('msg.enterValid')); return; }
+                    try {
+                        LedgerCore.addTransaction({ type, amount, currency, category });
+                        document.getElementById('txAmount').value = '';
+                        document.getElementById('txCategory').value = '';
+                        renderLedgerCore();
+                    } catch (e) { alert('Error: ' + e.message); }
+                });
+            }
+
+            updateLanguage();
+
+            // SIDE MENU INIT
+            const sideMenu = document.getElementById('sideMenu'),
+                sideMenuOverlay = document.getElementById('sideMenuOverlay'),
+                btnMenu = document.getElementById('btnMenu');
+
+            function openSideMenu() {
+                sideMenu.classList.add('active');
+                sideMenuOverlay.classList.add('active');
+            }
+
+            function closeSideMenu() {
+                sideMenu.classList.remove('active');
+                sideMenuOverlay.classList.remove('active');
+            }
+
+            if (btnMenu) btnMenu.addEventListener('click', openSideMenu);
+            if (sideMenuOverlay) sideMenuOverlay.addEventListener('click', closeSideMenu);
+
+            document.querySelectorAll('.side-menu-item').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const nav = btn.dataset.nav;
+                    navigateTo(nav);
+                    closeSideMenu();
+                    document.querySelectorAll('.side-menu-item').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            welcomeScreen.classList.add('active');
+            setTimeout(() => { welcomeScreen.classList.remove('active'); mainApp.classList.add('active'); }, 2600);
+        }
+
+        function navigateTo(target) {
+            if (currentProject) saveCurrentProject();
+            currentProject = null; currentMenuFolder = null; currentServiceFolder = null;
+            workspaceScreen.classList.remove('active'); menuManagementScreen.classList.remove('active'); serviceManagementScreen.classList.remove('active');
+            mainScreen.style.display = '';
+
+            document.querySelectorAll('.nav-link[data-nav], .side-menu-item[data-nav]').forEach(b => {
+                if (b.dataset.nav === target) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+
+            Object.values(panels).forEach(p => p.classList.remove('active'));
+            if (panels[target]) panels[target].classList.add('active');
+            if (target === 'plans') renderProjects();
+            if (target === 'menus') renderMenuFolders();
+            if (target === 'services') renderServiceFolders();
+            if (target === 'ledgercore' && typeof renderLedgerCore !== 'undefined') renderLedgerCore();
+        }
+
+        function backToMain() {
+            if (currentProject) saveCurrentProject();
+            if (currentMenuFolder) saveMenuFolders();
+            if (currentServiceFolder) saveServiceFolders();
+            currentProject = null; currentMenuFolder = null; currentServiceFolder = null;
+            workspaceScreen.classList.remove('active'); menuManagementScreen.classList.remove('active'); serviceManagementScreen.classList.remove('active');
+            mainScreen.style.display = '';
+            // Restore correct panel
+            const activeBtn = document.querySelector('.side-menu-item[data-nav].active') || document.querySelector('.nav-link[data-nav].active');
+            if (activeBtn) { const t = activeBtn.dataset.nav; Object.values(panels).forEach(p => p.classList.remove('active')); if (panels[t]) panels[t].classList.add('active'); }
+            else { panels.plans && panels.plans.classList.add('active'); }
+            renderProjects(); renderMenuFolders(); renderServiceFolders();
+        }
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (translations[currentLanguage] && translations[currentLanguage][k]) el.innerHTML = translations[currentLanguage][k]; });
+            document.querySelectorAll('[data-i18n-title]').forEach(el => { const k = el.getAttribute('data-i18n-title'); if (translations[currentLanguage] && translations[currentLanguage][k]) el.title = translations[currentLanguage][k]; });
+            updateGuestCalc();
+        }
+
+        // PROJECTS
+        function loadProjects() { try { const s = localStorage.getItem('billmate_projects'); if (s) projects = JSON.parse(s); } catch (e) { } renderProjects(); }
+        function saveProjects() { try { localStorage.setItem('billmate_projects', JSON.stringify(projects)); } catch (e) { } }
+        function renderProjects() {
+            if (!projectsGrid) return; projectsGrid.innerHTML = '';
+            if (!projects.length) { projectsGrid.innerHTML = '<p class="empty-state">' + t('msg.noProjects') + '</p>'; return; }
+            projects.forEach((project, i) => {
+                const card = document.createElement('div'); card.className = 'project-card';
+                card.innerHTML = '<div class="project-card-header"><h3>' + project.name + '</h3><div class="project-card-actions"><button class="btn-icon" title="' + t('common.rename') + '"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn-icon danger" title="' + t('common.delete') + '"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></div><div class="project-card-meta">' + t('project.lastModified') + ': ' + new Date(project.lastModified).toLocaleDateString() + '</div>';
+                const [rb, db] = card.querySelectorAll('.btn-icon');
+                rb.addEventListener('click', e => { e.stopPropagation(); const n = prompt(t('common.rename') + ':', project.name); if (n && n.trim()) { projects[i].name = n.trim(); projects[i].lastModified = new Date().toISOString(); saveProjects(); renderProjects(); } });
+                db.addEventListener('click', e => { e.stopPropagation(); if (confirm(t('common.deleteConfirm'))) { projects.splice(i, 1); saveProjects(); renderProjects(); } });
+                card.addEventListener('click', () => openProject(i));
+                projectsGrid.appendChild(card);
+            });
+        }
+        function createNewProject() { const name = prompt(t('projects.new') + ':'); if (name && name.trim()) { projects.push({ id: Date.now(), name: name.trim(), lastModified: new Date().toISOString(), billingItems: [], guests: 0, costPerPerson: 0, chairsPerTable: 8 }); saveProjects(); renderProjects(); } }
+        function openProject(i) {
+            currentProject = projects[i];
+            document.getElementById('currentProjectName').textContent = currentProject.name;
+            numGuestsEl.value = currentProject.guests || 0; costPerPersonEl.value = currentProject.costPerPerson || 0; chairsPerTableEl.value = currentProject.chairsPerTable || 8;
+            renderBillingItems(); updateGuestCalc(); updateTotals();
+            renderAvailItems('food'); renderAvailItems('beverage'); renderAvailItems('service');
+            mainScreen.style.display = 'none'; workspaceScreen.classList.add('active'); switchBillingTab('food-billing');
+        }
+        function saveCurrentProject() {
+            if (!currentProject) return;
+            currentProject.lastModified = new Date().toISOString();
+            currentProject.guests = parseInt(numGuestsEl.value) || 0; currentProject.costPerPerson = parseFloat(costPerPersonEl.value) || 0; currentProject.chairsPerTable = parseInt(chairsPerTableEl.value) || 8;
+            saveProjects();
+        }
+
+        // AVAILABLE ITEMS
+        function renderAvailItems(type) {
+            let container, items = [];
+            if (type === 'food') { container = document.getElementById('availableFoodItems'); menuFolders.forEach(f => { (f.foodItems || []).forEach(i => items.push({ ...i, _fn: f.name })); }); }
+            else if (type === 'beverage') { container = document.getElementById('availableBeverageItems'); menuFolders.forEach(f => { (f.beverageItems || []).forEach(i => items.push({ ...i, _fn: f.name })); }); }
+            else { container = document.getElementById('availableServiceItems'); serviceFolders.forEach(f => { (f.items || []).forEach(i => items.push({ ...i, _fn: f.name })); }); }
+            if (!container) return; container.innerHTML = '';
+            if (type === 'food' || type === 'beverage') {
+                const relevantFolders = menuFolders;
+                if (!relevantFolders.length) { container.innerHTML = '<p class="empty-state">' + t('msg.noMenusCreated') + '</p>'; return; }
+                relevantFolders.forEach(folder => {
+                    const fItems = type === 'food' ? (folder.foodItems || []) : (folder.beverageItems || []);
+                    if (!fItems.length) return;
+                    const card = document.createElement('div'); card.className = 'pkg-card';
+                    const tot = fItems.reduce((s, i) => s + i.price, 0);
+                    card.innerHTML = '<h4>' + folder.name + '</h4><div class="pkg-total">' + tot.toFixed(2) + '</div><div class="pkg-hint">' + t('msg.clickToAddAll') + '</div>';
+                    card.addEventListener('click', () => applyMenuPkg(folder, type)); container.appendChild(card);
+                });
+                if (items.length) {
+                    const sep = document.createElement('p'); sep.className = 'divider-label'; sep.textContent = t('msg.orAddIndividually'); container.appendChild(sep);
+                    const grid = document.createElement('div'); grid.className = 'avail-grid'; container.appendChild(grid);
+                    items.forEach(item => {
+                        const div = document.createElement('div'); div.className = 'avail-item';
+                        div.innerHTML = '<h5>' + item.name + '</h5><div class="price">' + item.price.toFixed(2) + '</div><div class="qty-row"><label>Qty:</label><input type="number" class="iq" min="1" value="1"></div><button class="btn-add-small">' + t('addToBill') + '</button>';
+                        div.querySelector('.btn-add-small').addEventListener('click', () => { const q = parseFloat(div.querySelector('.iq').value) || 1; addToBillDirect(item, type, q); });
+                        grid.appendChild(div);
+                    });
+                }
+            } else {
+                if (!serviceFolders.length) { container.innerHTML = '<p class="empty-state">' + t('msg.noServicesCreated') + '</p>'; return; }
+                serviceFolders.forEach(folder => {
+                    if (!folder.items || !folder.items.length) return;
+                    const card = document.createElement('div'); card.className = 'pkg-card';
+                    const tot = (folder.items || []).reduce((s, i) => s + i.price, 0);
+                    card.innerHTML = '<h4>' + folder.name + '</h4><div class="pkg-total">' + tot.toFixed(2) + '</div><div class="pkg-hint">' + t('msg.clickToAddAllServices') + '</div>';
+                    card.addEventListener('click', () => applyServicePkg(folder)); container.appendChild(card);
+                });
+                if (items.length) {
+                    const sep = document.createElement('p'); sep.className = 'divider-label'; sep.textContent = t('msg.orAddIndividually'); container.appendChild(sep);
+                    const grid = document.createElement('div'); grid.className = 'avail-grid'; container.appendChild(grid);
+                    items.forEach(item => {
+                        const div = document.createElement('div'); div.className = 'avail-item';
+                        div.innerHTML = '<h5>' + item.name + '</h5><div class="price">' + item.price.toFixed(2) + '</div><div class="qty-row"><label>Qty:</label><input type="number" class="iq" min="1" value="1"></div><button class="btn-add-small">' + t('addToBill') + '</button>';
+                        div.querySelector('.btn-add-small').addEventListener('click', () => { const q = parseFloat(div.querySelector('.iq').value) || 1; addToBillDirect(item, 'service', q); });
+                        grid.appendChild(div);
+                    });
+                }
+            }
+        }
+
+        function applyMenuPkg(folder, type) {
+            if (!currentProject) return;
+            const gc = parseInt(numGuestsEl.value) || 0, chairs = parseInt(chairsPerTableEl.value) || 8, tables = Math.ceil(gc / chairs) || 1;
+            const fItems = type === 'food' ? (folder.foodItems || []) : (folder.beverageItems || []);
+            fItems.forEach(item => {
+                const q = type === 'food' ? Math.ceil(gc / (item.serves || 1)) || 1 : tables * (item.perTable || 1);
+                const ex = currentProject.billingItems.find(i => i.sourceId === item.id && i.type === type);
+                if (ex) ex.quantity += q;
+                else currentProject.billingItems.push({ id: Date.now() + Math.random(), sourceId: item.id, name: item.name, price: item.price, unit: type === 'food' ? item.unit : item.volume, type, quantity: q, serves: item.serves, perTable: item.perTable, fromPackage: true });
+            });
+            renderBillingItems(); updateTotals(); saveCurrentProject();
+        }
+        function applyServicePkg(folder) {
+            if (!currentProject) return;
+            (folder.items || []).forEach(item => {
+                const ex = currentProject.billingItems.find(i => i.sourceId === item.id && i.type === 'service');
+                if (ex) ex.quantity += 1;
+                else currentProject.billingItems.push({ id: Date.now() + Math.random(), sourceId: item.id, name: item.name, price: item.price, unit: 'Service', type: 'service', quantity: 1 });
+            });
+            renderBillingItems(); updateTotals(); saveCurrentProject();
+        }
+        function addToBillDirect(item, type, qty) {
+            if (!currentProject) return;
+            const ex = currentProject.billingItems.find(i => i.sourceId === item.id && i.type === type);
+            if (ex) ex.quantity += qty;
+            else currentProject.billingItems.push({ id: Date.now() + Math.random(), sourceId: item.id, name: item.name, price: item.price, unit: type === 'food' ? item.unit : (type === 'beverage' ? item.volume : ''), type, quantity: qty });
+            renderBillingItems(); updateTotals(); saveCurrentProject();
+        }
+
+        // BILLING ITEMS
+        function renderBillingItems() {
+            if (!currentProject) { billingItemsList.innerHTML = '<p class="empty-state">' + t('billing.empty') + '</p>'; return; }
+            billingItemsList.innerHTML = '';
+            if (!currentProject.billingItems || !currentProject.billingItems.length) { billingItemsList.innerHTML = '<p class="empty-state">' + t('billing.empty') + '</p>'; return; }
+            currentProject.billingItems.forEach((item, idx) => {
+                const div = document.createElement('div'); div.className = 'billing-item';
+                div.innerHTML = '<div class="billing-item-header"><h5>' + item.name + '</h5><button class="btn-icon danger" style="width:24px;height:24px">✕</button></div><div class="billing-item-qty"><label>' + t('quantity') + ':</label><input type="number" min="0.01" step="0.01" value="' + item.quantity + '"><span>' + (item.unit || '') + '</span></div><div class="billing-item-tot"><span>' + t('total') + ':</span><span class="itv">' + (item.price * item.quantity).toFixed(2) + '</span></div>';
+                const qi = div.querySelector('input');
+                qi.addEventListener('input', () => { const v = parseFloat(qi.value); if (v > 0) { item.quantity = v; div.querySelector('.itv').textContent = (item.price * v).toFixed(2); updateTotals(); saveCurrentProject(); } });
+                div.querySelector('.btn-icon').addEventListener('click', () => { currentProject.billingItems.splice(idx, 1); renderBillingItems(); updateTotals(); saveCurrentProject(); });
+                billingItemsList.appendChild(div);
+            });
+        }
+
+        // BILLING TABS
+        function switchBillingTab(tab) {
+            document.querySelectorAll('.billing-tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn-small').forEach(b => b.classList.remove('active'));
+            const map = { 'food-billing': 'foodTabBilling', 'beverage-billing': 'beverageTabBilling', 'service-billing': 'serviceTabBilling' };
+            if (map[tab]) { const el = document.getElementById(map[tab]); if (el) el.classList.add('active'); }
+            const btn = document.querySelector('.tab-btn-small[data-tab="' + tab + '"]'); if (btn) btn.classList.add('active');
+        }
+
+        // GUEST CALC
+        function updateGuestCalc() {
+            const g = parseInt(numGuestsEl.value) || 0, c = parseInt(chairsPerTableEl.value) || 8;
+            if (g > 0) { const tabs = Math.ceil(g / c); const msg = t('tableSuggestion').replace('{tables}', tabs).replace('{chairs}', c).replace('{guests}', g); tableSugEl.innerHTML = '<div class="table-sugg">' + msg + '</div>'; }
+            else tableSugEl.innerHTML = '';
+            updateTotals();
+        }
+        function updatePackageQtys() {
+            if (!currentProject) return;
+            const g = parseInt(numGuestsEl.value) || 0, c = parseInt(chairsPerTableEl.value) || 8, tabs = Math.ceil(g / c) || 1;
+            let ch = false;
+            currentProject.billingItems.forEach(item => {
+                if (item.fromPackage) {
+                    if (item.type === 'food') item.quantity = Math.ceil(g / (item.serves || 1)) || 1;
+                    else if (item.type === 'beverage') item.quantity = tabs * (item.perTable || 1);
+                    else item.quantity = g || 1;
+                    ch = true;
+                }
+            });
+            if (ch) { renderBillingItems(); updateTotals(); saveCurrentProject(); }
+        }
+        function updateTotals() {
+            let food = 0, bev = 0, svc = 0;
+            if (currentProject) (currentProject.billingItems || []).forEach(i => { const t = i.price * i.quantity; if (i.type === 'food') food += t; else if (i.type === 'beverage') bev += t; else if (i.type === 'service') svc += t; });
+            const g = parseInt(numGuestsEl.value) || 0, cpp = parseFloat(costPerPersonEl.value) || 0, gt = g * cpp;
+            let grand = food + bev + svc + gt; const disc = parseFloat(discountSelect.value) || 0; if (disc > 0) grand -= grand * disc;
+            foodTotalEl.textContent = food.toFixed(2); beverageTotalEl.textContent = bev.toFixed(2); servicesTotalEl.textContent = svc.toFixed(2); guestTotalEl.textContent = gt.toFixed(2); grandTotalEl.textContent = grand.toFixed(2);
+        }
+
+        // RECEIPT
+        function generateReceipt() {
+            if (!currentProject) return;
+            const now = new Date(), food = (currentProject.billingItems || []).filter(i => i.type === 'food'), bev = (currentProject.billingItems || []).filter(i => i.type === 'beverage'), svc = (currentProject.billingItems || []).filter(i => i.type === 'service');
+            const g = parseInt(numGuestsEl.value) || 0, cpp = parseFloat(costPerPersonEl.value) || 0, disc = parseFloat(discountSelect.value) || 0;
+            let html = '<div class="receipt-header"><h2>' + t('receipt.appName') + '</h2><p>' + currentProject.name + '</p><p>' + now.toLocaleDateString() + ' ' + now.toLocaleTimeString() + '</p></div>';
+            if (g > 0) html += '<div class="receipt-section"><h4>' + t('billing.guestCalc') + '</h4><div class="receipt-item"><span class="ri-name">' + t('billing.numGuests') + '</span><span class="ri-price">' + g + '</span></div><div class="receipt-item"><span class="ri-name">' + t('billing.costPerPerson') + '</span><span class="ri-price">' + cpp.toFixed(2) + '</span></div></div>';
+            if (food.length) { html += '<div class="receipt-section"><h4>' + t('menu.food') + '</h4>'; food.forEach(i => { html += '<div class="receipt-item"><span class="ri-name">' + i.name + '</span><span class="ri-det">' + i.quantity + ' ' + (i.unit || '') + ' × ' + i.price.toFixed(2) + '</span><span class="ri-price">' + (i.price * i.quantity).toFixed(2) + '</span></div>'; }); html += '</div>'; }
+            if (bev.length) { html += '<div class="receipt-section"><h4>' + t('menu.beverage') + '</h4>'; bev.forEach(i => { html += '<div class="receipt-item"><span class="ri-name">' + i.name + '</span><span class="ri-det">' + i.quantity + ' ' + (i.unit || '') + ' × ' + i.price.toFixed(2) + '</span><span class="ri-price">' + (i.price * i.quantity).toFixed(2) + '</span></div>'; }); html += '</div>'; }
+            if (svc.length) { html += '<div class="receipt-section"><h4>' + t('services.title') + '</h4>'; svc.forEach(i => { html += '<div class="receipt-item"><span class="ri-name">' + i.name + '</span><span class="ri-det">' + i.quantity + ' × ' + i.price.toFixed(2) + '</span><span class="ri-price">' + (i.price * i.quantity).toFixed(2) + '</span></div>'; }); html += '</div>'; }
+            const fS = parseFloat(foodTotalEl.textContent) || 0, bS = parseFloat(beverageTotalEl.textContent) || 0, sS = parseFloat(servicesTotalEl.textContent) || 0, gS = parseFloat(guestTotalEl.textContent) || 0, tot = parseFloat(grandTotalEl.textContent) || 0;
+            let discHtml = ''; if (disc > 0) { const raw = fS + bS + sS + gS; discHtml = '<div class="rs-row" style="color:var(--accent-gold)"><span>' + t('billing.discount') + ' (' + (disc * 100) + '%)</span><span>-' + (raw * disc).toFixed(2) + '</span></div>'; }
+            html += '<div class="receipt-summary"><div class="rs-row"><span>' + t('billing.foodTotal') + '</span><span>' + fS.toFixed(2) + '</span></div><div class="rs-row"><span>' + t('billing.beverageTotal') + '</span><span>' + bS.toFixed(2) + '</span></div><div class="rs-row"><span>' + t('billing.serviceTotal') + '</span><span>' + sS.toFixed(2) + '</span></div><div class="rs-row"><span>' + t('billing.guestTotal') + '</span><span>' + gS.toFixed(2) + '</span></div>' + discHtml + '<div class="rs-row total"><span>' + t('billing.grandTotal') + '</span><span>' + tot.toFixed(2) + '</span></div></div>';
+            receiptBody.innerHTML = html; receiptModal.classList.add('active');
+        }
+
+        // MENU FOLDERS
+        function loadMenuFolders() { try { const s = localStorage.getItem('billmate_menu_folders'); if (s) menuFolders = JSON.parse(s); } catch (e) { } renderMenuFolders(); }
+        function saveMenuFolders() { try { localStorage.setItem('billmate_menu_folders', JSON.stringify(menuFolders)); } catch (e) { } }
+        function renderMenuFolders() {
+            if (!menuFoldersGrid) return; menuFoldersGrid.innerHTML = '';
+            if (!menuFolders.length) { menuFoldersGrid.innerHTML = '<p class="empty-state">' + t('msg.noMenus') + '</p>'; return; }
+            menuFolders.forEach((folder, i) => {
+                const tot = (folder.foodItems || []).reduce((s, x) => s + x.price, 0) + (folder.beverageItems || []).reduce((s, x) => s + x.price, 0);
+                const cnt = (folder.foodItems || []).length + (folder.beverageItems || []).length;
+                const card = document.createElement('div'); card.className = 'menu-folder-card';
+                card.innerHTML = '<div class="menu-folder-header"><div class="menu-folder-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="project-card-actions"><button class="btn-icon" title="' + t('common.rename') + '"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn-icon danger" title="' + t('common.delete') + '"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></div><h3>' + folder.name + '</h3><div class="menu-folder-total">' + tot.toFixed(2) + '</div><div class="menu-folder-meta">' + t('menus.itemCount').replace('{count}', cnt) + '</div>';
+                const [rb, db] = card.querySelectorAll('.btn-icon');
+                rb.addEventListener('click', e => { e.stopPropagation(); const n = prompt(t('common.rename') + ':', folder.name); if (n && n.trim()) { menuFolders[i].name = n.trim(); saveMenuFolders(); renderMenuFolders(); } });
+                db.addEventListener('click', e => { e.stopPropagation(); if (confirm(t('common.deleteConfirm'))) { menuFolders.splice(i, 1); saveMenuFolders(); renderMenuFolders(); } });
+                card.addEventListener('click', () => openMenuFolder(i));
+                menuFoldersGrid.appendChild(card);
+            });
+        }
+        function createNewMenuFolder() { const n = prompt(t('menus.new') + ':', t('msg.newMenuDefault') + ' ' + (menuFolders.length + 1)); if (n && n.trim()) { menuFolders.push({ id: Date.now(), name: n.trim(), foodItems: [], beverageItems: [], lastModified: Date.now() }); saveMenuFolders(); renderMenuFolders(); } }
+        function openMenuFolder(i) {
+            currentMenuFolder = menuFolders[i];
+            document.getElementById('menuManagementTitle').textContent = currentMenuFolder.name;
+            renderMenuFolderItems();
+            mainScreen.style.display = 'none'; menuManagementScreen.classList.add('active');
+        }
+        function addFoodToMenu() {
+            if (!currentMenuFolder) return;
+            const name = document.getElementById('foodNameMenu').value.trim(), price = parseFloat(document.getElementById('foodPriceMenu').value.replace(/,/g, '.')), unit = document.getElementById('foodUnitMenu').value, serves = parseFloat(document.getElementById('foodServesInput').value) || 1;
+            if (!name || isNaN(price) || price <= 0) { alert(t('msg.enterValid')); return; }
+            currentMenuFolder.foodItems.push({ id: Date.now(), name, price, unit, serves, type: 'food' });
+            document.getElementById('foodNameMenu').value = ''; document.getElementById('foodPriceMenu').value = ''; document.getElementById('foodServesInput').value = '1';
+            renderMenuFolderItems(); saveMenuFolders();
+        }
+        function addBeverageToMenu() {
+            if (!currentMenuFolder) return;
+            const name = document.getElementById('beverageNameMenu').value.trim(), price = parseFloat(document.getElementById('beveragePriceMenu').value.replace(/,/g, '.')), volume = document.getElementById('beverageVolumeMenu').value, perTable = parseFloat(document.getElementById('beveragePerTableInput').value) || 1;
+            if (!name || isNaN(price) || price <= 0) { alert(t('msg.enterValid')); return; }
+            currentMenuFolder.beverageItems.push({ id: Date.now(), name, price, volume, perTable, type: 'beverage' });
+            document.getElementById('beverageNameMenu').value = ''; document.getElementById('beveragePriceMenu').value = ''; document.getElementById('beveragePerTableInput').value = '1';
+            renderMenuFolderItems(); saveMenuFolders();
+        }
+        function renderMenuFolderItems() {
+            const fl = document.getElementById('foodItemsListMenu'), bl = document.getElementById('beverageItemsListMenu');
+            if (!fl || !bl) return; fl.innerHTML = ''; bl.innerHTML = ''; if (!currentMenuFolder) return;
+            (currentMenuFolder.foodItems || []).forEach((item, i) => fl.appendChild(mkFolderItem(item, i, 'food')));
+            (currentMenuFolder.beverageItems || []).forEach((item, i) => bl.appendChild(mkFolderItem(item, i, 'beverage')));
+        }
+        function mkFolderItem(item, i, type) {
+            const div = document.createElement('div'); div.className = 'menu-item';
+            const u = type === 'food' ? item.unit : item.volume, sub = item.price.toFixed(2) + ' / ' + u + (type === 'food' && item.serves > 1 ? ' (' + t('msg.servesCount').replace('{count}', item.serves) + ')' : type === 'beverage' && item.perTable > 0 ? ' (' + item.perTable + t('msg.perTableShort') + ')' : '');
+            div.innerHTML = '<div class="menu-item-info"><h4>' + item.name + '</h4><p>' + sub + '</p></div><div class="menu-item-actions"><span class="menu-item-price">' + item.price.toFixed(2) + '</span><button class="btn-icon danger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>';
+            div.querySelector('.btn-icon').addEventListener('click', () => { if (confirm(t('common.deleteConfirm'))) { if (type === 'food') currentMenuFolder.foodItems.splice(i, 1); else currentMenuFolder.beverageItems.splice(i, 1); renderMenuFolderItems(); saveMenuFolders(); } });
+            return div;
+        }
+
+        // SERVICE FOLDERS
+        function loadServiceFolders() { try { const s = localStorage.getItem('billmate_service_folders'); if (s) serviceFolders = JSON.parse(s); } catch (e) { } renderServiceFolders(); }
+        function saveServiceFolders() { try { localStorage.setItem('billmate_service_folders', JSON.stringify(serviceFolders)); } catch (e) { } }
+        function renderServiceFolders() {
+            if (!serviceFoldersGrid) return; serviceFoldersGrid.innerHTML = '';
+            if (!serviceFolders.length) { serviceFoldersGrid.innerHTML = '<p class="empty-state">' + t('msg.noServices') + '</p>'; return; }
+            serviceFolders.forEach((folder, i) => {
+                const cnt = (folder.items || []).length;
+                const card = document.createElement('div'); card.className = 'menu-folder-card';
+                card.innerHTML = '<div class="menu-folder-header"><div class="menu-folder-icon" style="color:var(--accent-gold)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="project-card-actions"><button class="btn-icon" title="' + t('common.rename') + '"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn-icon danger" title="' + t('common.delete') + '"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></div><h3>' + folder.name + '</h3><div class="menu-folder-meta">' + t('services.itemCount').replace('{count}', cnt) + '</div>';
+                const [rb, db] = card.querySelectorAll('.btn-icon');
+                rb.addEventListener('click', e => { e.stopPropagation(); const n = prompt(t('common.rename') + ':', folder.name); if (n && n.trim()) { serviceFolders[i].name = n.trim(); saveServiceFolders(); renderServiceFolders(); } });
+                db.addEventListener('click', e => { e.stopPropagation(); if (confirm(t('common.deleteConfirm'))) { serviceFolders.splice(i, 1); saveServiceFolders(); renderServiceFolders(); } });
+                card.addEventListener('click', () => openServiceFolder(i));
+                serviceFoldersGrid.appendChild(card);
+            });
+        }
+        function createNewServiceFolder() { const n = prompt(t('services.new') + ':', t('msg.newServiceDefault') + ' ' + (serviceFolders.length + 1)); if (n && n.trim()) { serviceFolders.push({ id: Date.now(), name: n.trim(), items: [], lastModified: Date.now() }); saveServiceFolders(); renderServiceFolders(); } }
+        function openServiceFolder(i) {
+            currentServiceFolder = serviceFolders[i];
+            document.getElementById('serviceManagementTitle').textContent = currentServiceFolder.name;
+            renderServiceFolderItems();
+            mainScreen.style.display = 'none'; serviceManagementScreen.classList.add('active');
+        }
+        function addServiceToFolder() {
+            if (!currentServiceFolder) return;
+            const n = document.getElementById('serviceNameInput'), p = document.getElementById('servicePriceInput');
+            const name = n.value.trim(), price = parseFloat(p.value.replace(/,/g, '.'));
+            if (!name || isNaN(price) || price <= 0) { alert(t('msg.enterValid')); return; }
+            currentServiceFolder.items.push({ id: Date.now(), name, price, type: 'service' });
+            n.value = ''; p.value = ''; renderServiceFolderItems(); saveServiceFolders();
+        }
+        function renderServiceFolderItems() {
+            const list = document.getElementById('serviceItemsList'); if (!list) return; list.innerHTML = ''; if (!currentServiceFolder) return;
+            (currentServiceFolder.items || []).forEach((item, i) => {
+                const div = document.createElement('div'); div.className = 'menu-item';
+                div.innerHTML = '<div class="menu-item-info"><h4>' + item.name + '</h4><p>' + item.price.toFixed(2) + '</p></div><div class="menu-item-actions"><span class="menu-item-price">' + item.price.toFixed(2) + '</span><button class="btn-icon danger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>';
+                div.querySelector('.btn-icon').addEventListener('click', () => { currentServiceFolder.items.splice(i, 1); renderServiceFolderItems(); saveServiceFolders(); });
+                list.appendChild(div);
+            });
+        }
+
+        // ============================================
+        // LEDGERCORE - ISOLATED BUSINESS LOGIC MODULE
+        // ============================================
+        const LedgerCore = (() => {
+            const STORAGE_KEY = 'billmate_ledger_projects_v2';
+            const SUPPORTED_CURRENCIES = ['USD', 'TRY', 'TMT', 'UZS'];
+            let projects = [];
+            let currentProjectId = null;
+
+            const load = () => { try { const data = localStorage.getItem(STORAGE_KEY); projects = data ? JSON.parse(data) : []; } catch (e) { projects = []; } };
+            const save = () => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); } catch (e) { console.error('Failed to save:', e); } };
+            const validateTx = (tx) => {
+                if (!tx.type || !['income', 'expense'].includes(tx.type)) throw new Error('Invalid type');
+                if (typeof tx.amount !== 'number' || tx.amount < 0) throw new Error('Invalid amount');
+                if (!SUPPORTED_CURRENCIES.includes(tx.currency)) throw new Error('Invalid currency');
+                if (!tx.category) throw new Error('Category required');
+            };
+            const generateId = () => `id_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+            load();
+
+            return {
+                getProjects: () => projects,
+                addProject: (name) => {
+                    const p = { id: generateId(), name, transactions: [], lastModified: new Date().toISOString() };
+                    projects.push(p); save(); return p;
+                },
+                deleteProject: (id) => {
+                    projects = projects.filter(p => p.id !== id);
+                    if (currentProjectId === id) currentProjectId = null;
+                    save();
+                },
+                renameProject: (id, newName) => {
+                    const p = projects.find(proj => proj.id === id);
+                    if (p) { p.name = newName; p.lastModified = new Date().toISOString(); save(); }
+                },
+                setCurrentProject: (id) => { currentProjectId = id; },
+                getCurrentProject: () => projects.find(p => p.id === currentProjectId),
+                addTransaction: (txData) => {
+                    const p = projects.find(proj => proj.id === currentProjectId);
+                    if (!p) throw new Error('No project selected');
+                    const tx = { id: generateId(), type: txData.type, amount: Math.round(txData.amount * 100), currency: txData.currency, category: txData.category.trim(), date: new Date().toISOString() };
+                    validateTx(tx);
+                    p.transactions.push(tx); p.lastModified = new Date().toISOString(); save(); return tx;
+                },
+                deleteTransaction: (txId) => {
+                    const p = projects.find(proj => proj.id === currentProjectId);
+                    if (!p) throw new Error('No project selected');
+                    p.transactions = p.transactions.filter(t => t.id !== txId);
+                    p.lastModified = new Date().toISOString(); save();
+                },
+                getTransactions: () => {
+                    const p = projects.find(proj => proj.id === currentProjectId);
+                    return p ? p.transactions.map(t => ({ ...t, amount: t.amount / 100 })) : [];
+                },
+                getTotals: () => {
+                    const p = projects.find(proj => proj.id === currentProjectId);
+                    const totals = {};
+                    if (!p) return totals;
+                    p.transactions.forEach(tx => {
+                        if (!totals[tx.currency]) totals[tx.currency] = { income: 0, expense: 0 };
+                        totals[tx.currency][tx.type] += tx.amount;
+                    });
+                    Object.keys(totals).forEach(c => { totals[c].income /= 100; totals[c].expense /= 100; });
+                    return totals;
+                }
+            };
+        })();
+
+        // Ledger UI Functions
+        function renderLedgerCore() {
+            const curr = LedgerCore.getCurrentProject();
+            const list = document.getElementById('ledgerProjectsView');
+            const detail = document.getElementById('ledgerProjectDetailView');
+            if (!list || !detail) return;
+
+            if (!curr) {
+                list.style.display = 'block'; detail.style.display = 'none';
+                renderLedgerProjects();
+            } else {
+                list.style.display = 'none'; detail.style.display = 'block';
+                document.getElementById('currentLedgerProjectName').textContent = curr.name;
+                renderLedgerSummary(); renderLedgerTransactions(); renderLedgerBalance();
+            }
+        }
+        function renderLedgerProjects() {
+            const grid = document.getElementById('ledgerProjectsGrid'); if (!grid) return;
+            const projs = LedgerCore.getProjects();
+            if (projs.length === 0) { grid.innerHTML = `<div class="empty-state" data-i18n="msg.noLedgerProjects">${t('msg.noLedgerProjects')}</div>`; return; }
+            grid.innerHTML = projs.map(p => `
+                <div class="project-card" onclick="openLedgerProject('${p.id}')">
+                    <div class="project-card-header">
+                        <div class="project-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></div>
+                        <div class="project-card-actions">
+                            <button class="btn-icon" onclick="event.stopPropagation(); renameLedgerProjectUI('${p.id}', '${p.name}')" title="${t('common.rename')}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                            <button class="btn-icon danger" onclick="event.stopPropagation(); deleteLedgerProjectUI('${p.id}')" title="${t('common.delete')}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                        </div>
+                    </div>
+                    <div class="project-info">
+                        <h3>${p.name}</h3>
+                        <p>${p.transactions.length} ${t('ledger.transactions')}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function openLedgerProject(id) { LedgerCore.setCurrentProject(id); renderLedgerCore(); }
+        function createNewLedgerProject() { const n = prompt(t('ledger.projectName') + ':'); if (n && n.trim()) { LedgerCore.addProject(n.trim()); renderLedgerCore(); } }
+        function renameLedgerProjectUI(id, oldName) { const n = prompt(t('common.rename') + ':', oldName); if (n && n.trim()) { LedgerCore.renameProject(id, n.trim()); renderLedgerCore(); } }
+        function deleteLedgerProjectUI(id) { if (confirm(t('common.projectDeleteConfirm'))) { LedgerCore.deleteProject(id); renderLedgerCore(); } }
+        function renderLedgerSummary() {
+            const container = document.getElementById('ledgerSummary'); if (!container) return;
+            const totals = LedgerCore.getTotals();
+            if (Object.keys(totals).length === 0) { container.innerHTML = `<p style="color: var(--text-muted); font-size: 13px;">${t('billing.empty')}</p>`; return; }
+            let html = '';
+            Object.keys(totals).forEach(currency => {
+                const netAmount = totals[currency].income - totals[currency].expense;
+                const netColor = netAmount >= 0 ? 'var(--accent-cyan)' : '#ff5555';
+                html += `<div class="ledger-summary-item"><div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; letter-spacing: 1px;">${currency}</div><div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; font-size: 12px;"><div><div style="color: var(--text-secondary); font-size: 10px; text-transform: uppercase;">${t('ledger.income')}</div><div style="color: var(--accent-cyan); font-weight: 700; font-size: 14px;">${totals[currency].income.toFixed(2)}</div></div><div><div style="color: var(--text-secondary); font-size: 10px; text-transform: uppercase;">${t('ledger.expense')}</div><div style="color: #ff5555; font-weight: 700; font-size: 14px;">${totals[currency].expense.toFixed(2)}</div></div><div><div style="color: var(--text-secondary); font-size: 10px; text-transform: uppercase;">${t('ledger.net')}</div><div style="color: ${netColor}; font-weight: 800; font-size: 14px;">${netAmount.toFixed(2)}</div></div></div></div>`;
+            });
+            container.innerHTML = html;
+        }
+        function renderLedgerTransactions() {
+            const container = document.getElementById('ledgerTransactions'); if (!container) return;
+            const transactions = LedgerCore.getTransactions();
+            if (transactions.length === 0) { container.innerHTML = `<p style="color: var(--text-muted); font-size: 13px;">${t('billing.empty')}</p>`; return; }
+            let html = '';
+            transactions.reverse().forEach(tx => {
+                const typeColor = tx.type === 'income' ? 'var(--accent-cyan)' : '#ff5555', typeSymbol = tx.type === 'income' ? '+' : '-', date = new Date(tx.date).toLocaleDateString();
+                html += `<div class="ledger-item"><div style="flex: 1;"><div style="font-size: 13px; font-weight: 700; color: #fff;">${tx.category}</div><div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${date}</div></div><div style="text-align: right;"><div style="font-size: 14px; font-weight: 800; color: ${typeColor};">${typeSymbol}${tx.amount.toFixed(2)} ${tx.currency}</div><button class="ledger-btn-delete" onclick="deleteLedgerTransaction('${tx.id}')">${t('common.delete')}</button></div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderLedgerBalance() {
+            const container = document.getElementById('ledgerBalance'); if (!container) return;
+            const totals = LedgerCore.getTotals();
+            if (Object.keys(totals).length === 0) {
+                container.innerHTML = `<div style="font-size: 24px; font-weight: 800; text-align: center; color: var(--accent-cyan);">0.00</div>`;
+                return;
+            }
+            let html = '';
+            Object.keys(totals).forEach(currency => {
+                const netAmount = totals[currency].income - totals[currency].expense;
+                const netColor = netAmount >= 0 ? 'var(--accent-cyan)' : '#ff5555';
+                html += `<div style="text-align: center; margin-bottom: 10px;">
+                            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">${currency}</div>
+                            <div style="font-size: 28px; font-weight: 800; color: ${netColor};">${netAmount.toFixed(2)}</div>
+                         </div>`;
+            });
+            container.innerHTML = html;
+        }
+        function deleteLedgerTransaction(id) { if (confirm(t('common.deleteConfirm'))) { try { LedgerCore.deleteTransaction(id); renderLedgerCore(); } catch (e) { alert('Error: ' + e.message); } } }
+
+        // REGISTER SERVICE WORKER
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('SW Registered');
+                }).catch(err => {
+                    console.log('SW Registration failed', err);
+                });
+            });
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
