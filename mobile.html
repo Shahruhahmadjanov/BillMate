@@ -193,20 +193,21 @@
         .side-menu {
             position: fixed;
             top: 0;
-            left: -280px;
+            left: 0;
             width: 280px;
             height: 100vh;
             background: var(--card-bg);
             z-index: 1000;
             box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
-            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
             padding: 24px 0;
         }
 
         .side-menu.active {
-            left: 0;
+            transform: translateX(0);
         }
 
         .side-menu-header {
@@ -1584,6 +1585,7 @@
             .side-menu {
                 width: 85%;
                 max-width: 300px;
+                left: 0;
             }
 
             .total-row {
@@ -1703,6 +1705,14 @@
             </svg>
             <span data-i18n="menus.title">Menu Library</span>
         </button>
+        <button class="side-menu-item" data-nav="about">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span data-i18n="about.title">About</span>
+        </button>
     </div>
 
     <!-- APP -->
@@ -1769,10 +1779,74 @@
                             <line x1="12" y1="5" x2="12" y2="19" />
                             <line x1="5" y1="12" x2="19" y2="12" />
                         </svg>
-                        <span data-i18n="services.new">New Service</span>
+                        <span data-i18n="services.new">New Service Group</span>
                     </button>
                 </div>
                 <div class="folders-grid" id="serviceFoldersGrid"></div>
+            </div>
+
+            <!-- ABOUT -->
+            <div id="aboutPanel" class="panel">
+                <div class="section-header">
+                    <div class="section-title" data-i18n="about.title">About BillMate</div>
+                </div>
+                <div class="card" style="padding: 24px; line-height: 1.6;">
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <div class="wl-logo" style="font-size: 32px; margin-bottom: 8px;">BILLMATE</div>
+                        <div style="color: var(--text-secondary); font-size: 14px;">Version 1.0.0</div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary); margin-bottom: 8px;" data-i18n="about.creator">Creator
+                        </h4>
+                        <p style="font-weight: 600;">Shahruh Ahmedov Mansuroglu</p>
+                        <p style="color: var(--text-secondary); font-size: 13px;">Created in 2026</p>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary); margin-bottom: 8px;" data-i18n="about.description_title">
+                            Description</h4>
+                        <p style="font-size: 14px; color: var(--text-primary);" data-i18n="about.description_text">
+                            BillMate is a professional event finance and management tool designed to simplify
+                            complex billing calculations and track project finances with precision. It serves as a
+                            comprehensive companion for event planners and finance managers.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 style="color: var(--primary); margin-bottom: 12px;" data-i18n="about.features_title">
+                            Main Features</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li
+                                style="margin-bottom: 12px; border-left: 3px solid var(--accent-cyan); padding-left: 12px;">
+                                <strong data-i18n="about.f1_title">Project Management</strong>
+                                <p style="font-size: 13px; color: var(--text-secondary);" data-i18n="about.f1_desc">
+                                    Create multiple event projects, each with its own isolated billing data, guest
+                                    counts, and customized services.</p>
+                            </li>
+                            <li
+                                style="margin-bottom: 12px; border-left: 3px solid var(--accent-cyan); padding-left: 12px;">
+                                <strong data-i18n="about.f2_title">Menu Library</strong>
+                                <p style="font-size: 13px; color: var(--text-secondary);" data-i18n="about.f2_desc">
+                                    Build and store reusable food and beverage menus. Add entire menu groups to your
+                                    project bill with a single click.</p>
+                            </li>
+                            <li
+                                style="margin-bottom: 12px; border-left: 3px solid var(--accent-gold); padding-left: 12px;">
+                                <strong data-i18n="about.f3_title">Finance</strong>
+                                <p style="font-size: 13px; color: var(--text-secondary);" data-i18n="about.f3_desc">
+                                    Manage income and expenses across different currencies with real-time balance
+                                    tracking and transaction history.</p>
+                            </li>
+                            <li style="margin-bottom: 12px; border-left: 3px solid var(--primary); padding-left: 12px;">
+                                <strong data-i18n="about.f4_title">Professional Receipts</strong>
+                                <p style="font-size: 13px; color: var(--text-secondary);" data-i18n="about.f4_desc">
+                                    Generate clean, professional receipts for your clients that can be printed or
+                                    shared directly from your device.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
             <!-- LEDGERCORE -->
@@ -1970,14 +2044,14 @@
                         <div class="totals-block">
                             <div class="total-row"><span data-i18n="billing.foodTotal">Food Total:</span><span
                                     id="foodTotal">0.00</span></div>
-                            <div class="total-row"><span data-i18n="billing.beverageTotal">Beverage Total:</span><span
-                                    id="beverageTotal">0.00</span></div>
-                            <div class="total-row"><span data-i18n="billing.serviceTotal">Services Total:</span><span
-                                    id="servicesTotal">0.00</span></div>
+                            <div class="total-row"><span data-i18n="billing.beverageTotal">Beverage
+                                    Total:</span><span id="beverageTotal">0.00</span></div>
+                            <div class="total-row"><span data-i18n="billing.serviceTotal">Services
+                                    Total:</span><span id="servicesTotal">0.00</span></div>
                             <div class="total-row"><span data-i18n="billing.guestTotal">Guest Total:</span><span
                                     id="guestTotal">0.00</span></div>
-                            <div class="total-row grand"><span data-i18n="billing.grandTotal">Grand Total:</span><span
-                                    id="grandTotal">0.00</span></div>
+                            <div class="total-row grand"><span data-i18n="billing.grandTotal">Grand
+                                    Total:</span><span id="grandTotal">0.00</span></div>
                         </div>
                         <button class="btn-gold" id="btnGenerateReceipt" data-i18n="billing.generateReceipt">Generate
                             Receipt</button>
@@ -2076,7 +2150,8 @@
                                     <option value="6">6</option>
                                 </select></div>
                         </div>
-                        <button class="btn-primary" id="btnAddBeverageMenu" data-i18n="menu.addItem">Add Item</button>
+                        <button class="btn-primary" id="btnAddBeverageMenu" data-i18n="menu.addItem">Add
+                            Item</button>
                     </div>
                     <div class="menu-items-list" id="beverageItemsListMenu"></div>
                 </div>
@@ -2106,13 +2181,28 @@
                                     data-i18n="service.price">Price</label><input type="text" id="servicePriceInput"
                                     class="form-input" placeholder="0.00"></div>
                         </div>
-                        <button class="btn-primary" id="btnAddServiceItem" data-i18n="service.add">Add Service</button>
+                        <button class="btn-primary" id="btnAddServiceItem" data-i18n="service.add">Add
+                            Service</button>
                     </div>
                     <div class="menu-items-list" id="serviceItemsList" style="max-width:600px"></div>
                 </div>
             </div>
         </div>
     </div><!-- /mainApp -->
+
+    <!-- INPUT MODAL -->
+    <div class="modal-overlay" id="inputModal">
+        <div class="modal">
+            <div class="section-title" id="inputModalTitle">Input</div>
+            <div class="form-group" style="margin-top:20px">
+                <input type="text" id="inputModalField" class="form-input">
+            </div>
+            <div class="modal-actions" style="margin-top:24px">
+                <button class="btn-primary" id="btnInputSave" style="flex:1">Save</button>
+                <button class="btn-secondary" id="btnInputCancel" style="flex:1">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <!-- RECEIPT MODAL -->
     <div class="modal-overlay" id="receiptModal">
@@ -2149,7 +2239,9 @@
                 "service.group": "Service Group", "service.add": "Add Service",
                 "msg.noProjects": "No projects yet. Create your first project!", "msg.noMenus": "No menus yet. Create your first menu!", "msg.noServices": "No services yet. Create your first service group!", "msg.noMenusCreated": "No menus created yet.", "msg.noServicesCreated": "No services created yet.", "msg.clickToAddAll": "▶ Click to add all to bill", "msg.clickToAddAllServices": "▶ Click to add all services", "msg.orAddIndividually": "Or add individually:", "msg.enterValid": "Enter valid name and price", "msg.newMenuDefault": "New Menu", "msg.newServiceDefault": "New Service Group",
                 "msg.servesCount": "serves {count}", "msg.perTableShort": "/table", "receipt.appName": "BILLMATE", "billing.noDiscount": "No Discount",
-                "ledgercore.title": "Finance", "ledger.addTransaction": "Add Transaction", "ledger.summary": "Summary", "ledger.transactions": "Transactions", "ledger.type": "Type", "ledger.amount": "Amount", "ledger.currency": "Currency", "ledger.category": "Category", "ledger.income": "Income", "ledger.expense": "Expense", "ledger.projects": "Finance Projects", "ledger.newProject": "New Finance Project", "ledger.backToList": "Back to Projects", "msg.noLedgerProjects": "No projects yet. Create your first finance project!", "ledger.projectName": "Project Name", "ledger.balance": "Current Balance"
+                "ledgercore.title": "Finance", "ledger.addTransaction": "Add Transaction", "ledger.summary": "Summary", "ledger.transactions": "Transactions", "ledger.type": "Type", "ledger.amount": "Amount", "ledger.currency": "Currency", "ledger.category": "Category", "ledger.income": "Income", "ledger.expense": "Expense", "ledger.projects": "Finance Projects", "ledger.newProject": "New Finance Project", "ledger.backToList": "Back to Projects", "msg.noLedgerProjects": "No projects yet. Create your first finance project!", "ledger.projectName": "Project Name", "ledger.balance": "Current Balance",
+                "about.title": "About", "about.creator": "Creator", "about.description_title": "Description", "about.description_text": "BillMate is a professional event finance and management tool designed to simplify complex billing calculations and track project finances with precision.", "about.features_title": "Main Features", "about.f1_title": "Project Management", "about.f1_desc": "Create multiple event projects, each with its own isolated billing data, guest counts, and customized services.", "about.f2_title": "Menu Library", "about.f2_desc": "Build and store reusable food and beverage menus. Add entire menu groups to your project bill with a single click.",
+                "about.f3_title": "Finance", "about.f3_desc": "Manage income and expenses across different currencies with real-time balance tracking and transaction history.", "about.f4_title": "Professional Receipts", "about.f4_desc": "Generate clean, professional receipts for your clients that can be printed or shared directly from your device."
             },
             uz: {
                 "welcome.subtitle": "Professional Tadbir Xarajatlari Kalkulyatori", "projects.title": "Mening Loyihalarim", "projects.new": "Yangi Loyiha", "workspace.back": "Orqaga", "menu.title": "Menyu Boshqaruvi", "menu.food": "Ovqatlar", "menu.beverage": "Ichimliklar", "menu.itemName": "Mahsulot nomi", "menu.beverageName": "Ichimlik nomi", "menu.price": "Narx", "menu.addItem": "Qo'shish", "billing.title": "Tadbir Hisob-kitobi", "billing.guestCalc": "Mehmonlar Kalkulyatori", "billing.numGuests": "Mehmonlar Soni", "billing.costPerPerson": "Bir Kishiga Narx", "billing.numTables": "Stollar Soni", "billing.chairsPerTable": "Har Bir Stolda O'rindiqlar", "billing.items": "Hisob Elementlari", "billing.empty": "Hali hech narsa qo'shilmagan.", "billing.foodTotal": "Ovqatlar Jami:", "billing.beverageTotal": "Ichimliklar Jami:", "billing.guestTotal": "Mehmonlar Jami:", "billing.discount": "Chegirma:", "billing.grandTotal": "Umumiy Jami:", "billing.generateReceipt": "Chek Yaratish", "receipt.title": "Chek", "receipt.print": "Chop Etish", "quantity": "Miqdor", "total": "Jami", "addToBill": "Hisobga Qo'shish", "tableSuggestion": "Tavsiya: {guests} mehmon uchun {chairs} o'rindiqli {tables} stol", "plans.title": "Rejalar", "plans.new": "Rejalar", "menus.title": "Menyular", "menus.new": "Menyular", "menus.totalPrice": "Jami Narx", "menus.itemCount": "{count} ta element", "menus.manage": "Menyularni Boshqarish", "menus.available": "Mavjud Menyu Elementlari", "menus.foodItems": "Ovqat Elementlari", "menus.beverageItems": "Ichimlik Elementlari", "unit.portion": "Porsiya", "unit.kg": "kg", "unit.g": "g", "unit.item": "Dona", "project.lastModified": "Oxirgi o'zgarish", "qty": "Miqdor", "services.title": "Xizmatlar", "services.new": "Xizmatlar", "services.totalPrice": "Jami Narx", "services.itemCount": "{count} ta xizmat", "services.manage": "Xizmatlar Boshqaruvi", "services.available": "Mavjud Xizmatlar", "service.name": "Xizmat nomi", "service.price": "Narx", "billing.serviceTotal": "Xizmatlar Jami:", "menu.serves": "Necha kishiga?", "menu.perTable": "Har bir stolga",
@@ -2159,7 +2251,9 @@
                 "service.group": "Xizmat Guruhi", "service.add": "Xizmat Qo'shish",
                 "msg.noProjects": "Loyiha yo'q. Birinchi loyihangizni yarating!", "msg.noMenus": "Menyu yo'q. Ilkinji menyuingizni yarating!", "msg.noServices": "Xizmatlar yo'q. Birinchi xizmat guruhingizni yarating!", "msg.noMenusCreated": "Menyular yaratilmagan.", "msg.noServicesCreated": "Xizmatlar yaratilmagan.", "msg.clickToAddAll": "▶ Hammasini hisobga qo'shish", "msg.clickToAddAllServices": "▶ Barcha xizmatlarni qo'shish", "msg.orAddIndividually": "Yoki alohida qo'shing:", "msg.enterValid": "To'g'ri nom va narx kiriting", "msg.newMenuDefault": "Yangi Menyu", "msg.newServiceDefault": "Yangi Xizmat Guruhi",
                 "msg.servesCount": "{count} kishilik", "msg.perTableShort": "/stol", "receipt.appName": "BILLMATE", "billing.noDiscount": "Chegirma Yo'q",
-                "ledgercore.title": "Moliya", "ledger.addTransaction": "Tranzaksiya Qo'shish", "ledger.summary": "Xulosa", "ledger.transactions": "Tranzaksiyalar", "ledger.type": "Turi", "ledger.amount": "Summa", "ledger.currency": "Valyuta", "ledger.category": "Kategoriya", "ledger.income": "Kirim", "ledger.expense": "Chiqim", "ledger.projects": "Moliya Loyihalari", "ledger.newProject": "Yangi Moliya Loyihasi", "ledger.backToList": "Loyihalarga qaytish", "msg.noLedgerProjects": "Loyiha yo'q. Birinchi loyihangizni yarating!", "ledger.projectName": "Loyiha Nomi", "ledger.balance": "Joriy Balans"
+                "ledgercore.title": "Moliya", "ledger.addTransaction": "Tranzaksiya Qo'shish", "ledger.summary": "Xulosa", "ledger.transactions": "Tranzaksiyalar", "ledger.type": "Turi", "ledger.amount": "Summa", "ledger.currency": "Valyuta", "ledger.category": "Kategoriya", "ledger.income": "Kirim", "ledger.expense": "Chiqim", "ledger.projects": "Moliya Loyihalari", "ledger.newProject": "Yangi Moliya Loyihasi", "ledger.backToList": "Loyihalarga qaytish", "msg.noLedgerProjects": "Loyiha yo'q. Birinchi loyihangizni yarating!", "ledger.projectName": "Loyiha Nomi", "ledger.balance": "Joriy Balans",
+                "about.title": "Dastur haqida", "about.creator": "Muallif", "about.description_title": "Tavsif", "about.description_text": "BillMate - bu murakkab tadbir hisob-kitoblarini soddalashtirish va loyiha moliyasini aniqlik bilan kuzatib borish uchun mo'ljallangan professional vosita.", "about.features_title": "Asosiy Imkoniyatlar", "about.f1_title": "Loyihalarni Boshqarish", "about.f1_desc": "Har biri alohida hisob-kitob ma'lumotlari, mehmonlar soni va xizmatlariga ega bo'lgan bir nechta tadbir loyihalarini yarating.", "about.f2_title": "Menyu Kutubxonasi", "about.f2_desc": "Qayta ishlatiladigan taom va ichimliklar menyularini yarating va ularni bir birgina bosish orqali loyihaga qo'shing.",
+                "about.f3_title": "Moliya", "about.f3_desc": "Turli valyutalarda daromad va xarajatlarni boshqaring, real vaqt rejimida balans va tranzaksiyalar tarixini kuzatib boring.", "about.f4_title": "Professional Cheklar", "about.f4_desc": "Mijozlaringiz uchun professional cheklar yarating, ularni chop etish yoki to'g'ridan-to'g'ri ulashish imkoniyati mavjud."
             },
             ru: {
                 "welcome.subtitle": "Профессиональный Калькулятор Расходов", "projects.title": "Мои Проекты", "projects.new": "Новый Проект", "workspace.back": "Назад", "menu.title": "Управление Меню", "menu.food": "Еда", "menu.beverage": "Напитки", "menu.itemName": "Название блюда", "menu.beverageName": "Название напитка", "menu.price": "Цена", "menu.addItem": "Добавить", "billing.title": "Расчёт Мероприятия", "billing.guestCalc": "Калькулятор Гостей", "billing.numGuests": "Количество Гостей", "billing.costPerPerson": "Цена за Человека", "billing.numTables": "Количество Столов", "billing.chairsPerTable": "Стульев за Столом", "billing.items": "Позиции Счёта", "billing.empty": "Пока ничего не добавлено.", "billing.foodTotal": "Итого Еда:", "billing.beverageTotal": "Итого Напитки:", "billing.guestTotal": "Итого Гости:", "billing.discount": "Скидка:", "billing.grandTotal": "Общий Итог:", "billing.generateReceipt": "Создать Чек", "receipt.title": "Чек", "receipt.print": "Печать", "quantity": "Количество", "total": "Итого", "addToBill": "В Счёт", "tableSuggestion": "Рекомендуется: {tables} столов по {chairs} стульев для {guests} гостей", "plans.title": "Планы", "plans.new": "Планы", "menus.title": "Меню", "menus.new": "Меню", "menus.totalPrice": "Общая Сумма", "menus.itemCount": "{count} позиций", "menus.manage": "Управление Меню", "menus.available": "Доступные Позиции", "menus.foodItems": "Позиции Еды", "menus.beverageItems": "Позиции Напитков", "unit.portion": "Порция", "unit.kg": "кг", "unit.g": "г", "unit.item": "Штука", "project.lastModified": "Последнее изменение", "qty": "Кол-во", "services.title": "Услуги", "services.new": "Услуги", "services.totalPrice": "Общая Сумма", "services.itemCount": "{count} услуг", "services.manage": "Управление Услугами", "services.available": "Доступные Услуги", "service.name": "Название услуги", "service.price": "Цена", "billing.serviceTotal": "Итого Услуги:", "menu.serves": "На скольких чел.?", "menu.perTable": "На один стол",
@@ -2169,7 +2263,9 @@
                 "service.group": "Группа Услуг", "service.add": "Добавить Услугу",
                 "msg.noProjects": "Нет проектов. Создайте свой первый проект!", "msg.noMenus": "Нет меню. Создайте свое первое меню!", "msg.noServices": "Нет услуг. Создайте свою первую группу услуг!", "msg.noMenusCreated": "Меню еще не созданы.", "msg.noServicesCreated": "Услуги еще не созданы.", "msg.clickToAddAll": "▶ Нажмите, чтобы добавить всё в счет", "msg.clickToAddAllServices": "▶ Нажмите, чтобы добавить все услуги", "msg.orAddIndividually": "Или добавьте отдельно:", "msg.enterValid": "Введите корректное название и цену", "msg.newMenuDefault": "Новое Меню", "msg.newServiceDefault": "Новая Группа Услуг",
                 "msg.servesCount": "на {count} чел.", "msg.perTableShort": "/стол", "receipt.appName": "BILLMATE", "billing.noDiscount": "Без Скидки",
-                "ledgercore.title": "Финансы", "ledger.addTransaction": "Добавить транзакцию", "ledger.summary": "Итоги", "ledger.transactions": "Транзакции", "ledger.type": "Тип", "ledger.amount": "Сумма", "ledger.currency": "Валюта", "ledger.category": "Категория", "ledger.income": "Доход", "ledger.expense": "Расход", "ledger.projects": "Финансовые Проекты", "ledger.newProject": "Новый Финансовый Проект", "ledger.backToList": "К списку проектов", "msg.noLedgerProjects": "Проектов еще нет. Создайте первый финансовый проект!", "ledger.projectName": "Название проекта", "ledger.balance": "Текущий Баланс"
+                "ledgercore.title": "Финансы", "ledger.addTransaction": "Добавить транзакцию", "ledger.summary": "Итоги", "ledger.transactions": "Транзакции", "ledger.type": "Тип", "ledger.amount": "Сумма", "ledger.currency": "Валюта", "ledger.category": "Категория", "ledger.income": "Доход", "ledger.expense": "Расход", "ledger.projects": "Финансовые Проекты", "ledger.newProject": "Новый Финансовый Проект", "ledger.backToList": "К списку проектов", "msg.noLedgerProjects": "Проектов еще нет. Создайте первый финансовый проект!", "ledger.projectName": "Название проекта", "ledger.balance": "Текущий Баланс",
+                "about.title": "О программе", "about.creator": "Автор", "about.description_title": "Описание", "about.description_text": "BillMate — это профессиональный инструмент для управления финансами мероприятий, разработанный для упрощения сложных расчетов и точного отслеживания бюджетов.", "about.features_title": "Основные функции", "about.f1_title": "Управление проектами", "about.f1_desc": "Создавайте несколько проектов мероприятий, каждый со своими данными о счетах, количестве гостей и услугах.", "about.f2_title": "Библиотека меню", "about.f2_desc": "Создавайте и сохраняйте пакеты еды и напитков. Добавляйте целые группы меню в счет проекта одним кликом.",
+                "about.f3_title": "Финансы", "about.f3_desc": "Управляйте доходами и расходами в различных валютах с отслеживанием баланса в реальном времени.", "about.f4_title": "Профессиональные чеки", "about.f4_desc": "Создавайте чистые, профессиональные чеки для клиентов, которые можно распечатать или отправить сразу с устройства."
             },
             tm: {
                 "welcome.subtitle": "Professional Çäre Çykdajy Kalkulýatory", "projects.title": "Meniň Taslamalarym", "projects.new": "Täze Taslama", "workspace.back": "Yzyna", "menu.title": "Menýu Dolandyryşy", "menu.food": "Iýmitler", "menu.beverage": "Içgiler", "menu.itemName": "Haryt ady", "menu.beverageName": "Içgi ady", "menu.price": "Baha", "menu.addItem": "Goşmak", "billing.title": "Çäre Hasaplaşygy", "billing.guestCalc": "Myhmanlary Hasaplamak", "billing.numGuests": "Myhmanlaryň Sany", "billing.costPerPerson": "Bir Adam Üçin Baha", "billing.numTables": "Stollaryň Sany", "billing.chairsPerTable": "Her Stolda Oturgyçlar", "billing.items": "Hasap Elementleri", "billing.empty": "Entek hiç zat goşulmady.", "billing.foodTotal": "Iýmitler Jemi:", "billing.beverageTotal": "Içgiler Jemi:", "billing.guestTotal": "Myhmanlar Jemi:", "billing.discount": "Arzanladyş:", "billing.grandTotal": "Umumy Jemi:", "billing.generateReceipt": "Çek Döretmek", "receipt.title": "Çek", "receipt.print": "Çap Etmek", "quantity": "Mukdar", "total": "Jemi", "addToBill": "Hasaba Goşmak", "tableSuggestion": "Maslahat: {guests} myhman üçin {chairs} oturgyçly {tables} stol", "plans.title": "Meýilnamalar", "plans.new": "Meýilnamalar", "menus.title": "Menýular", "menus.new": "Menýular", "menus.totalPrice": "Jami Bahar", "menus.itemCount": "{count} element", "menus.manage": "Menýulary Dolandyrmak", "menus.available": "Elýeterli Menýu Elementleri", "menus.foodItems": "Iýmit Elementleri", "menus.beverageItems": "Içgi Elementleri", "unit.portion": "Porsiýa", "unit.kg": "kg", "unit.g": "g", "unit.item": "Sany", "project.lastModified": "Soňky üýtgeşme", "qty": "Mukdar", "services.title": "Hyzmatlar", "services.new": "Hyzmatlar", "services.totalPrice": "Jami Baha", "services.itemCount": "{count} hyzmat", "services.manage": "Hyzmatlar Dolandyryşy", "services.available": "Elýeterli Hyzmatlar", "service.name": "Hyzmat Ady", "service.price": "Baha", "billing.serviceTotal": "Hyzmatlar Jemi:", "menu.serves": "Adam sany", "menu.perTable": "Her stol üçin",
@@ -2180,7 +2276,9 @@
                 "service.group": "Hyzmat Topary", "service.add": "Hyzmat Goşmak",
                 "msg.noProjects": "Taslama ýok. Ilkinji taslamaňyzy dörediň!", "msg.noMenus": "Menýu ýok. Ilkinji menýuňyzy dörediň!", "msg.noServices": "Hyzmat ýok. Ilkinji hyzmat toparyňyzy dörediň!", "msg.noMenusCreated": "Entek menýu döredilmedi.", "msg.noServicesCreated": "Entek hyzmat döredilmedi.", "msg.clickToAddAll": "▶ Hemmesini hasaba goşmak üçin basyň", "msg.clickToAddAllServices": "▶ Barcha hyzmatlary goşmak üçin basyň", "msg.orAddIndividually": "Ýa-da aýratyn goşuň:", "msg.enterValid": "Dogry at we baha giriziň", "msg.newMenuDefault": "Täze Menýu", "msg.newServiceDefault": "Täze Hyzmat Topary",
                 "msg.servesCount": "{count} adamlyk", "msg.perTableShort": "/stol", "receipt.appName": "BILLMATE", "billing.noDiscount": "Arzanladyş Ýok",
-                "ledgercore.title": "Maliýe", "ledger.addTransaction": "Tranzaksiýa Goşmak", "ledger.summary": "Gysgaça", "ledger.transactions": "Tranzaksiýalar", "ledger.type": "Görnüşi", "ledger.amount": "Summa", "ledger.currency": "Walýuta", "ledger.category": "Kategoriýa", "ledger.income": "Girdeji", "ledger.expense": "Çykdajy", "ledger.projects": "Maliýe Taslamalary", "ledger.newProject": "Täze Maliýe Taslamasy", "ledger.backToList": "Taslamalara dolan", "msg.noLedgerProjects": "Taslama ýok. Ilkinji taslamaňyzy dörediň!", "ledger.projectName": "Taslamanyň Ady", "ledger.balance": "Häzirki Balans"
+                "ledgercore.title": "Maliýe", "ledger.addTransaction": "Tranzaksiýa Goşmak", "ledger.summary": "Gysgaça", "ledger.transactions": "Tranzaksiýalar", "ledger.type": "Görnüşi", "ledger.amount": "Summa", "ledger.currency": "Walýuta", "ledger.category": "Kategoriýa", "ledger.income": "Girdeji", "ledger.expense": "Çykdajy", "ledger.projects": "Maliýe Taslamalary", "ledger.newProject": "Täze Maliýe Taslamasy", "ledger.backToList": "Taslamalara dolan", "msg.noLedgerProjects": "Taslama ýok. Ilkinji taslamaňyzy dörediň!", "ledger.projectName": "Taslamanyň Ady", "ledger.balance": "Häzirki Balans",
+                "about.title": "Programma barada", "about.creator": "Muallif", "about.description_title": "Düşündiriş", "about.description_text": "BillMate — bu çylşyrymly çäre hasaplaşyklaryny ýönekeýleşdirmek we maliýe ýagdaýyny takyk yzarlamak üçin niýetlenen hünärmen guraly.", "about.features_title": "Esasy aýratynlyklar", "about.f1_title": "Taslamalary dolandyrmak", "about.f1_desc": "Sany çäkli bolmadyk çäre taslamalaryny dörediň, her biriniň öz aýratyn hasap-faktura maglumatlary bolar.", "about.f2_title": "Menýu kitaphanasy", "about.f2_desc": "Tagam we içgi paketlerini dörediň we ýatda saklaň. Bir basmak bilen çäre hasabyna goşuň.",
+                "about.f3_title": "Maliýe", "about.f3_desc": "Dürli walýutalarda girdejileri we çykdajylary dolandyryň, balansy real wagtda yzarlaň.", "about.f4_title": "Hünärmen çekler", "about.f4_desc": "Müşderileriňiz üçin professional çekleri dörediň, olary çap edip ýa-da gönüden-göni paýlaşyp bilersiňiz."
             },
             tr: {
                 "welcome.subtitle": "Profesyonel Etkinlik Masraf Hesaplayıcı", "projects.title": "Projelerim", "projects.new": "Yeni Proje", "workspace.back": "Geri", "menu.title": "Menü Yönetimi", "menu.food": "Yemekler", "menu.beverage": "İçecekler", "menu.itemName": "Ürün adı", "menu.beverageName": "İçecek adı", "menu.price": "Fiyat", "menu.addItem": "Ekle", "billing.title": "Etkinlik Hesaplaması", "billing.guestCalc": "Misafir Hesaplayıcı", "billing.numGuests": "Misafir Sayısı", "billing.costPerPerson": "Kişi Başı Fiyat", "billing.numTables": "Masa Sayısı", "billing.chairsPerTable": "Masa Başına Sandalye", "billing.items": "Hesap Kalemleri", "billing.empty": "Henüz hiçbir şey eklenmedi.", "billing.foodTotal": "Yemek Toplamı:", "billing.beverageTotal": "İçecek Toplamı:", "billing.guestTotal": "Misafir Toplamı:", "billing.discount": "İndirim:", "billing.grandTotal": "Genel Toplam:", "billing.generateReceipt": "Fiş Oluştur", "receipt.title": "Fiş", "receipt.print": "Yazdır", "quantity": "Miktar", "total": "Toplam", "addToBill": "Hesaba Ekle", "tableSuggestion": "Öneri: {guests} misafir için {chairs} sandalyeli {tables} masa", "plans.title": "Planlar", "plans.new": "Planlar", "menus.title": "Menüler", "menus.new": "Menüler", "menus.totalPrice": "Toplam Fiyat", "menus.itemCount": "{count} öğe", "menus.manage": "Menüleri Yönet", "menus.available": "Mevcut Menü Öğeleri", "menus.foodItems": "Yemek Öğeleri", "menus.beverageItems": "İçecek Öğeleri", "unit.portion": "Porsiyon", "unit.kg": "kg", "unit.g": "g", "unit.item": "Adet", "project.lastModified": "Son değişiklik", "qty": "Miktar", "services.title": "Hizmetler", "services.new": "Hizmetler", "services.totalPrice": "Toplam Fiyat", "services.itemCount": "{count} hizmet", "services.manage": "Hizmet Yönetimi", "services.available": "Mevcut Hizmetler", "service.name": "Hizmet Adı", "service.price": "Fiyat", "billing.serviceTotal": "Hizmetler Toplamı:", "menu.serves": "Kaç kişilik?", "menu.perTable": "Masa başına",
@@ -2190,7 +2288,9 @@
                 "service.group": "Hizmet Grubu", "service.add": "Hizmet Ekle",
                 "msg.noProjects": "Henüz proje yok. İlk projenizi oluşturun!", "msg.noMenus": "Henüz menü yok. İlk menünüzü oluşturun!", "msg.noServices": "Henüz hizmet yok. İlk hizmet grubunuzu oluşturun!", "msg.noMenusCreated": "Henüz menü oluşturulmadı.", "msg.noServicesCreated": "Henüz hizmet oluşturulmadı.", "msg.clickToAddAll": "▶ Hepsini hesaba eklemek için tıklayın", "msg.clickToAddAllServices": "▶ Tüm hizmetleri eklemek için tıklayın", "msg.orAddIndividually": "Veya tek tek ekleyin:", "msg.enterValid": "Geçerli bir ad ve fiyat girin", "msg.newMenuDefault": "Yeni Menü", "msg.newServiceDefault": "Yeni Hizmet Grubu",
                 "msg.servesCount": "{count} kişilik", "msg.perTableShort": "/masa", "receipt.appName": "BILLMATE", "billing.noDiscount": "İndirim Yok",
-                "ledgercore.title": "Finans", "ledger.addTransaction": "İşlem Ekle", "ledger.summary": "Özet", "ledger.transactions": "İşlemler", "ledger.type": "Tür", "ledger.amount": "Tutar", "ledger.currency": "Para Birimi", "ledger.category": "Kategori", "ledger.income": "Gelir", "ledger.expense": "Gider", "ledger.net": "Net", "ledger.projects": "Finans Projeleri", "ledger.newProject": "Yeni Finans Projesi", "ledger.backToList": "Projelere Dön", "msg.noLedgerProjects": "Henüz proje yok. İlk finans projenizi oluşturun!", "ledger.projectName": "Proje Adı", "ledger.balance": "Güncel Bakiye"
+                "ledgercore.title": "Finans", "ledger.addTransaction": "İşlem Ekle", "ledger.summary": "Özet", "ledger.transactions": "İşlemler", "ledger.type": "Tür", "ledger.amount": "Tutar", "ledger.currency": "Para Birimi", "ledger.category": "Kategori", "ledger.income": "Gelir", "ledger.expense": "Gider", "ledger.net": "Net", "ledger.projects": "Finans Projeleri", "ledger.newProject": "Yeni Finans Projesi", "ledger.backToList": "Projelere Dön", "msg.noLedgerProjects": "Henüz proje yok. İlk finans projenizi oluşturun!", "ledger.projectName": "Proje Adı", "ledger.balance": "Güncel Bakiye",
+                "about.title": "Hakkında", "about.creator": "Yapımcı", "about.description_title": "Açıklama", "about.description_text": "BillMate, karmaşık etkinlik hesaplamalarını basitleştirmek ve proje bütçelerini hassasiyetle takip etmek için tasarlanmış profesyonel bir araçtır.", "about.features_title": "Ana Özellikler", "about.f1_title": "Proje Yönetimi", "about.f1_desc": "Farklı bütçe ve misafir sayılarına sahip birden fazla etkinlik projesi oluşturun ve yönetin.", "about.f2_title": "Menü Kütüphanesi", "about.f2_desc": "Yemek ve içecek paketleri oluşturun. Tek tıklamayla proje faturasına ekleyin.",
+                "about.f3_title": "Finans", "about.f3_desc": "Farklı para birimlerinde gelir ve giderleri yönetin, bakiyeyi anlık olarak takip edin.", "about.f4_title": "Profesyonel Fişler", "about.f4_desc": "Müşterileriniz için yazdırılabilir veya paylaşılabilir profesyonel fişler oluşturun."
             }
         };
 
@@ -2203,7 +2303,7 @@
         const welcomeScreen = document.getElementById('welcomeScreen'), mainApp = document.getElementById('mainApp'), mainScreen = document.getElementById('mainScreen');
         const workspaceScreen = document.getElementById('workspaceScreen'), menuManagementScreen = document.getElementById('menuManagementScreen'), serviceManagementScreen = document.getElementById('serviceManagementScreen');
         const langSel = document.getElementById('languageSelector');
-        const panels = { plans: document.getElementById('plansPanel'), menus: document.getElementById('menusPanel'), services: document.getElementById('servicesPanel'), ledgercore: document.getElementById('ledgercorePanel') };
+        const panels = { plans: document.getElementById('plansPanel'), menus: document.getElementById('menusPanel'), services: document.getElementById('servicesPanel'), ledgercore: document.getElementById('ledgercorePanel'), about: document.getElementById('aboutPanel') };
         const projectsGrid = document.getElementById('projectsGrid'), menuFoldersGrid = document.getElementById('menuFoldersGrid'), serviceFoldersGrid = document.getElementById('serviceFoldersGrid');
         const numGuestsEl = document.getElementById('numGuests'), costPerPersonEl = document.getElementById('costPerPerson'), chairsPerTableEl = document.getElementById('chairsPerTable');
         const tableSugEl = document.getElementById('tableSuggestion'), billingItemsList = document.getElementById('billingItemsList');
@@ -2220,7 +2320,16 @@
             document.getElementById('btnAddMenuFolder').addEventListener('click', createNewMenuFolder);
             document.getElementById('btnAddServiceFolder').addEventListener('click', createNewServiceFolder);
             document.getElementById('btnBack').addEventListener('click', () => navigateTo('plans'));
-            document.getElementById('btnRenameProject').addEventListener('click', () => { if (!currentProject) return; const n = prompt(t('common.rename') + ':', currentProject.name); if (n && n.trim()) { currentProject.name = n.trim(); document.getElementById('currentProjectName').textContent = n.trim(); saveProjects(); renderProjects(); } });
+            document.getElementById('btnRenameProject').addEventListener('click', () => {
+                if (!currentProject) return;
+                showInputModal(t('common.rename'), currentProject.name, (n) => {
+                    if (n && n.trim()) {
+                        currentProject.name = n.trim();
+                        document.getElementById('currentProjectName').textContent = n.trim();
+                        saveProjects(); renderProjects();
+                    }
+                });
+            });
             document.getElementById('btnDeleteProject').addEventListener('click', () => { if (!currentProject) return; if (confirm(t('common.projectDeleteConfirm'))) { projects = projects.filter(p => p.id !== currentProject.id); saveProjects(); navigateTo('plans'); } });
             document.getElementById('btnBackFromMenus').addEventListener('click', backToMain);
             document.getElementById('btnBackFromServices').addEventListener('click', backToMain);
@@ -2256,7 +2365,7 @@
             const btnRenLedger = document.getElementById('btnRenameLedgerProject');
             if (btnRenLedger) btnRenLedger.addEventListener('click', () => {
                 const curr = LedgerCore.getCurrentProject();
-                if (curr) { renameLedgerProjectUI(curr.id, curr.name); }
+                if (curr) { showInputModal(t('common.rename'), curr.name, (n) => { if (n && n.trim()) { LedgerCore.renameProject(curr.id, n.trim()); renderLedgerCore(); } }); }
             });
 
             const btnAddTx = document.getElementById('btnAddTransaction');
@@ -2359,13 +2468,29 @@
                 const card = document.createElement('div'); card.className = 'project-card';
                 card.innerHTML = '<div class="project-card-header"><h3>' + project.name + '</h3><div class="project-card-actions"><button class="btn-icon" title="' + t('common.rename') + '"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn-icon danger" title="' + t('common.delete') + '"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></div><div class="project-card-meta">' + t('project.lastModified') + ': ' + new Date(project.lastModified).toLocaleDateString() + '</div>';
                 const [rb, db] = card.querySelectorAll('.btn-icon');
-                rb.addEventListener('click', e => { e.stopPropagation(); const n = prompt(t('common.rename') + ':', project.name); if (n && n.trim()) { projects[i].name = n.trim(); projects[i].lastModified = new Date().toISOString(); saveProjects(); renderProjects(); } });
+                rb.addEventListener('click', e => {
+                    e.stopPropagation();
+                    showInputModal(t('common.rename'), project.name, (n) => {
+                        if (n && n.trim()) {
+                            projects[i].name = n.trim();
+                            projects[i].lastModified = new Date().toISOString();
+                            saveProjects(); renderProjects();
+                        }
+                    });
+                });
                 db.addEventListener('click', e => { e.stopPropagation(); if (confirm(t('common.deleteConfirm'))) { projects.splice(i, 1); saveProjects(); renderProjects(); } });
                 card.addEventListener('click', () => openProject(i));
                 projectsGrid.appendChild(card);
             });
         }
-        function createNewProject() { const name = prompt(t('projects.new') + ':'); if (name && name.trim()) { projects.push({ id: Date.now(), name: name.trim(), lastModified: new Date().toISOString(), billingItems: [], guests: 0, costPerPerson: 0, chairsPerTable: 8 }); saveProjects(); renderProjects(); } }
+        function createNewProject() {
+            showInputModal(t('projects.new'), '', (name) => {
+                if (name && name.trim()) {
+                    projects.push({ id: Date.now(), name: name.trim(), lastModified: new Date().toISOString(), billingItems: [], guests: 0, costPerPerson: 0, chairsPerTable: 8 });
+                    saveProjects(); renderProjects();
+                }
+            });
+        }
         function openProject(i) {
             currentProject = projects[i];
             document.getElementById('currentProjectName').textContent = currentProject.name;
@@ -2541,13 +2666,28 @@
                 const card = document.createElement('div'); card.className = 'menu-folder-card';
                 card.innerHTML = '<div class="menu-folder-header"><div class="menu-folder-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="project-card-actions"><button class="btn-icon" title="' + t('common.rename') + '"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn-icon danger" title="' + t('common.delete') + '"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></div><h3>' + folder.name + '</h3><div class="menu-folder-total">' + tot.toFixed(2) + '</div><div class="menu-folder-meta">' + t('menus.itemCount').replace('{count}', cnt) + '</div>';
                 const [rb, db] = card.querySelectorAll('.btn-icon');
-                rb.addEventListener('click', e => { e.stopPropagation(); const n = prompt(t('common.rename') + ':', folder.name); if (n && n.trim()) { menuFolders[i].name = n.trim(); saveMenuFolders(); renderMenuFolders(); } });
+                rb.addEventListener('click', e => {
+                    e.stopPropagation();
+                    showInputModal(t('common.rename'), folder.name, (n) => {
+                        if (n && n.trim()) {
+                            menuFolders[i].name = n.trim();
+                            saveMenuFolders(); renderMenuFolders();
+                        }
+                    });
+                });
                 db.addEventListener('click', e => { e.stopPropagation(); if (confirm(t('common.deleteConfirm'))) { menuFolders.splice(i, 1); saveMenuFolders(); renderMenuFolders(); } });
                 card.addEventListener('click', () => openMenuFolder(i));
                 menuFoldersGrid.appendChild(card);
             });
         }
-        function createNewMenuFolder() { const n = prompt(t('menus.new') + ':', t('msg.newMenuDefault') + ' ' + (menuFolders.length + 1)); if (n && n.trim()) { menuFolders.push({ id: Date.now(), name: n.trim(), foodItems: [], beverageItems: [], lastModified: Date.now() }); saveMenuFolders(); renderMenuFolders(); } }
+        function createNewMenuFolder() {
+            showInputModal(t('menus.new'), t('msg.newMenuDefault') + ' ' + (menuFolders.length + 1), (n) => {
+                if (n && n.trim()) {
+                    menuFolders.push({ id: Date.now(), name: n.trim(), foodItems: [], beverageItems: [], lastModified: Date.now() });
+                    saveMenuFolders(); renderMenuFolders();
+                }
+            });
+        }
         function openMenuFolder(i) {
             currentMenuFolder = menuFolders[i];
             document.getElementById('menuManagementTitle').textContent = currentMenuFolder.name;
@@ -2595,13 +2735,28 @@
                 const card = document.createElement('div'); card.className = 'menu-folder-card';
                 card.innerHTML = '<div class="menu-folder-header"><div class="menu-folder-icon" style="color:var(--accent-gold)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="project-card-actions"><button class="btn-icon" title="' + t('common.rename') + '"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn-icon danger" title="' + t('common.delete') + '"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></div><h3>' + folder.name + '</h3><div class="menu-folder-meta">' + t('services.itemCount').replace('{count}', cnt) + '</div>';
                 const [rb, db] = card.querySelectorAll('.btn-icon');
-                rb.addEventListener('click', e => { e.stopPropagation(); const n = prompt(t('common.rename') + ':', folder.name); if (n && n.trim()) { serviceFolders[i].name = n.trim(); saveServiceFolders(); renderServiceFolders(); } });
+                rb.addEventListener('click', e => {
+                    e.stopPropagation();
+                    showInputModal(t('common.rename'), folder.name, (n) => {
+                        if (n && n.trim()) {
+                            serviceFolders[i].name = n.trim();
+                            saveServiceFolders(); renderServiceFolders();
+                        }
+                    });
+                });
                 db.addEventListener('click', e => { e.stopPropagation(); if (confirm(t('common.deleteConfirm'))) { serviceFolders.splice(i, 1); saveServiceFolders(); renderServiceFolders(); } });
                 card.addEventListener('click', () => openServiceFolder(i));
                 serviceFoldersGrid.appendChild(card);
             });
         }
-        function createNewServiceFolder() { const n = prompt(t('services.new') + ':', t('msg.newServiceDefault') + ' ' + (serviceFolders.length + 1)); if (n && n.trim()) { serviceFolders.push({ id: Date.now(), name: n.trim(), items: [], lastModified: Date.now() }); saveServiceFolders(); renderServiceFolders(); } }
+        function createNewServiceFolder() {
+            showInputModal(t('services.new'), t('msg.newServiceDefault') + ' ' + (serviceFolders.length + 1), (n) => {
+                if (n && n.trim()) {
+                    serviceFolders.push({ id: Date.now(), name: n.trim(), items: [], lastModified: Date.now() });
+                    saveServiceFolders(); renderServiceFolders();
+                }
+            });
+        }
         function openServiceFolder(i) {
             currentServiceFolder = serviceFolders[i];
             document.getElementById('serviceManagementTitle').textContent = currentServiceFolder.name;
@@ -2732,8 +2887,16 @@
             `).join('');
         }
         function openLedgerProject(id) { LedgerCore.setCurrentProject(id); renderLedgerCore(); }
-        function createNewLedgerProject() { const n = prompt(t('ledger.projectName') + ':'); if (n && n.trim()) { LedgerCore.addProject(n.trim()); renderLedgerCore(); } }
-        function renameLedgerProjectUI(id, oldName) { const n = prompt(t('common.rename') + ':', oldName); if (n && n.trim()) { LedgerCore.renameProject(id, n.trim()); renderLedgerCore(); } }
+        function createNewLedgerProject() {
+            showInputModal(t('ledger.projectName'), '', (n) => {
+                if (n && n.trim()) { LedgerCore.addProject(n.trim()); renderLedgerCore(); }
+            });
+        }
+        function renameLedgerProjectUI(id, oldName) {
+            showInputModal(t('common.rename'), oldName, (n) => {
+                if (n && n.trim()) { LedgerCore.renameProject(id, n.trim()); renderLedgerCore(); }
+            });
+        }
         function deleteLedgerProjectUI(id) { if (confirm(t('common.projectDeleteConfirm'))) { LedgerCore.deleteProject(id); renderLedgerCore(); } }
         function renderLedgerSummary() {
             const container = document.getElementById('ledgerSummary'); if (!container) return;
@@ -2778,6 +2941,17 @@
             container.innerHTML = html;
         }
         function deleteLedgerTransaction(id) { if (confirm(t('common.deleteConfirm'))) { try { LedgerCore.deleteTransaction(id); renderLedgerCore(); } catch (e) { alert('Error: ' + e.message); } } }
+
+        function showInputModal(title, defaultValue, callback) {
+            const modal = document.getElementById('inputModal'), field = document.getElementById('inputModalField'), titleEl = document.getElementById('inputModalTitle'), btnSave = document.getElementById('btnInputSave'), btnCancel = document.getElementById('btnInputCancel');
+            titleEl.textContent = title; field.value = defaultValue || ''; modal.classList.add('active');
+            setTimeout(() => field.focus(), 150);
+            const handleSave = () => { const val = field.value.trim(); modal.classList.remove('active'); cleanup(); callback(val); };
+            const handleCancel = () => { modal.classList.remove('active'); cleanup(); callback(null); };
+            const handleKey = (e) => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') handleCancel(); };
+            const cleanup = () => { btnSave.removeEventListener('click', handleSave); btnCancel.removeEventListener('click', handleCancel); field.removeEventListener('keydown', handleKey); };
+            btnSave.onclick = handleSave; btnCancel.onclick = handleCancel; field.onkeydown = handleKey;
+        }
 
         // REGISTER SERVICE WORKER
         if ('serviceWorker' in navigator) {
