@@ -314,28 +314,108 @@
             transform: translateX(-50%);
         }
 
-        .lang-select {
+        .lang-pill {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1.5px solid var(--card-border);
+            border-radius: 10px;
+            padding: 5px 12px;
             font-family: var(--font-heading);
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: var(--radius-sm);
-            padding: 6px 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
             cursor: pointer;
             transition: var(--tr);
-            appearance: none
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 54px;
+            text-transform: uppercase;
         }
 
-        .lang-select:hover {
-            border-color: var(--accent-cyan);
-            color: var(--text-primary)
+        .lang-pill:hover {
+            border-color: var(--primary);
+            background: #fff;
         }
 
-        .lang-select option {
-            background: var(--bg-mid);
-            color: var(--text-primary)
+        /* Language Custom Modal / Sheet */
+        .lang-sheet {
+            background: #1F2430;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 340px;
+            padding: 8px 0;
+            box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5);
+            animation: langSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        @keyframes langSlideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .lang-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .lang-option:last-child {
+            border-bottom: none;
+        }
+
+        .lang-option:active {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .lang-option span {
+            color: #FFFFFF;
+            font-family: var(--font-heading);
+            font-size: 17px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .radio-circle {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .lang-option.active .radio-circle {
+            border-color: #8D99FF;
+            background: rgba(141, 153, 255, 0.1);
+        }
+
+        .radio-dot {
+            width: 12px;
+            height: 12px;
+            background: #8D99FF;
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .lang-option.active .radio-dot {
+            transform: scale(1);
         }
 
         /* SCREEN WRAPPER */
@@ -937,6 +1017,8 @@
         }
 
         .form-input {
+            width: 100%;
+            min-width: 0;
             padding: 9px 12px;
             font-size: 14px;
             font-family: var(--font-heading);
@@ -954,6 +1036,8 @@
         }
 
         .form-select {
+            width: 100%;
+            min-width: 0;
             padding: 9px 12px;
             font-size: 14px;
             font-family: var(--font-heading);
@@ -1185,7 +1269,9 @@
         .add-form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px
+            gap: 10px;
+            width: 100%;
+            overflow: hidden
         }
 
         .menu-items-list {
@@ -1727,13 +1813,7 @@
                 </svg>
             </button>
             <div class="nav-logo">BILL<span class="nc">MATE</span></div>
-            <select id="languageSelector" class="lang-select">
-                <option value="en">EN</option>
-                <option value="uz">UZ</option>
-                <option value="ru">RU</option>
-                <option value="tm">TM</option>
-                <option value="tr">TR</option>
-            </select>
+            <button id="langTrigger" class="lang-pill">EN</button>
         </nav>
 
         <div id="mainScreen">
@@ -2228,6 +2308,42 @@
         </div>
     </div>
 
+    <!-- LANGUAGE MODAL -->
+    <div class="modal-overlay" id="langModal">
+        <div class="lang-sheet">
+            <div class="lang-option" data-lang="en">
+                <span>EN</span>
+                <div class="radio-circle">
+                    <div class="radio-dot"></div>
+                </div>
+            </div>
+            <div class="lang-option" data-lang="uz">
+                <span>UZ</span>
+                <div class="radio-circle">
+                    <div class="radio-dot"></div>
+                </div>
+            </div>
+            <div class="lang-option" data-lang="ru">
+                <span>RU</span>
+                <div class="radio-circle">
+                    <div class="radio-dot"></div>
+                </div>
+            </div>
+            <div class="lang-option" data-lang="tm">
+                <span>TM</span>
+                <div class="radio-circle">
+                    <div class="radio-dot"></div>
+                </div>
+            </div>
+            <div class="lang-option" data-lang="tr">
+                <span>TR</span>
+                <div class="radio-circle">
+                    <div class="radio-dot"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // TRANSLATIONS
         const translations = {
@@ -2314,7 +2430,27 @@
         function init() {
             loadMenuFolders(); loadServiceFolders(); loadProjects();
             document.querySelectorAll('.nav-link[data-nav]').forEach(b => b.addEventListener('click', () => navigateTo(b.dataset.nav)));
-            langSel.addEventListener('change', e => { currentLanguage = e.target.value; updateLanguage(); });
+
+            const btnLang = document.getElementById('langTrigger');
+            const langModal = document.getElementById('langModal');
+
+            btnLang.onclick = () => {
+                document.querySelectorAll('.lang-option').forEach(opt => {
+                    if (opt.dataset.lang === currentLanguage) opt.classList.add('active');
+                    else opt.classList.remove('active');
+                });
+                langModal.classList.add('active');
+            };
+
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.onclick = () => {
+                    currentLanguage = opt.dataset.lang;
+                    updateLanguage();
+                    langModal.classList.remove('active');
+                };
+            });
+
+            langModal.onclick = (e) => { if (e.target === langModal) langModal.classList.remove('active'); };
 
             document.getElementById('btnAddProject').addEventListener('click', createNewProject);
             document.getElementById('btnAddMenuFolder').addEventListener('click', createNewMenuFolder);
@@ -2455,6 +2591,8 @@
         function updateLanguage() {
             document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (translations[currentLanguage] && translations[currentLanguage][k]) el.innerHTML = translations[currentLanguage][k]; });
             document.querySelectorAll('[data-i18n-title]').forEach(el => { const k = el.getAttribute('data-i18n-title'); if (translations[currentLanguage] && translations[currentLanguage][k]) el.title = translations[currentLanguage][k]; });
+            const trigger = document.getElementById('langTrigger');
+            if (trigger) trigger.textContent = currentLanguage.toUpperCase();
             updateGuestCalc();
         }
 
