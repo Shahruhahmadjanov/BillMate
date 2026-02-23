@@ -1263,7 +1263,8 @@
             margin-bottom: 16px;
             display: flex;
             flex-direction: column;
-            gap: 10px
+            gap: 10px;
+            width: 100%
         }
 
         .add-form-row {
@@ -1653,6 +1654,18 @@
             .form-select,
             .btn-gold {
                 height: var(--touch-target);
+            }
+
+            .add-form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .mgmt-col {
+                padding: 12px;
+            }
+
+            .add-form {
+                width: 100%;
             }
 
             .guest-grid {
@@ -2252,7 +2265,7 @@
             <div class="mgmt-body" style="grid-template-columns:1fr">
                 <div class="mgmt-col">
                     <div class="mgmt-col-title" data-i18n="services.available">Service Items</div>
-                    <div class="add-form" style="max-width:520px">
+                    <div class="add-form">
                         <div class="add-form-row">
                             <div class="form-group"><label class="form-label" data-i18n="service.name">Service
                                     Name</label><input type="text" id="serviceNameInput" class="form-input"
@@ -2264,7 +2277,7 @@
                         <button class="btn-primary" id="btnAddServiceItem" data-i18n="service.add">Add
                             Service</button>
                     </div>
-                    <div class="menu-items-list" id="serviceItemsList" style="max-width:600px"></div>
+                    <div class="menu-items-list" id="serviceItemsList"></div>
                 </div>
             </div>
         </div>
