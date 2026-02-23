@@ -1004,7 +1004,9 @@
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 5px
+            gap: 5px;
+            width: 100%;
+            min-width: 0;
         }
 
         .form-label {
@@ -1589,6 +1591,11 @@
             .mgmt-body {
                 grid-template-columns: 1fr;
                 gap: 24px;
+                overflow: hidden;
+            }
+
+            .add-form-row {
+                grid-template-columns: 1fr;
             }
 
             .app-nav {

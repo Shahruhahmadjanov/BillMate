@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billmate-v1';
+const CACHE_NAME = 'billmate-v2';
 const ASSETS = [
     'mobile.html',
     'manifest.json',
